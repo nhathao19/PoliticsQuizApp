@@ -1,0 +1,315 @@
+﻿<Window x:Class="PoliticsQuizApp.WPF.UserManagementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Quản Lý Người Dùng" Height="600" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI" Background="#F3F4F6">
+
+    <Window.Resources>
+        <!-- Style cho Label -->
+        <Style TargetType="TextBlock" x:Key="LabelStyle">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+            <!-- Tăng khoảng cách dưới -->
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <!-- Style cho Input Wrapper -->
+        <Style x:Key="InputBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <!-- Tăng khoảng cách giữa các ô -->
+            <Setter Property="Height" Value="42"/>
+            <!-- Tăng chiều cao chuẩn -->
+        </Style>
+
+        <!-- Style cho TextBox bên trong -->
+        <Style TargetType="TextBox" x:Key="InnerInputStyle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <!-- Padding trái phải -->
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <!-- Căn giữa theo chiều dọc -->
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="40"/>
+        </Style>
+
+        <!-- Style cho ComboBox bên trong -->
+        <Style TargetType="ComboBox" x:Key="InnerComboStyle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="40"/>
+        </Style>
+
+        <!-- Style cho DataGrid -->
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#E5E7EB"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+            <Setter Property="RowHeight" Value="45"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+        </Style>
+
+        <!-- Style cho Button Toolbar -->
+        <Style x:Key="ToolbarButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="15,0"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320"/>
+            <!-- Form -->
+            <ColumnDefinition Width="20"/>
+            <!-- Gap -->
+            <ColumnDefinition Width="*"/>
+            <!-- List -->
+        </Grid.ColumnDefinitions>
+
+        <!-- === LEFT: ADD USER FORM === -->
+        <Border Grid.Column="0" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+            </Border.Effect>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Header -->
+                    <RowDefinition Height="*"/>
+                    <!-- Form -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Button -->
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <Border Grid.Row="0" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="20">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="M15,14C12.33,14 7,15.33 7,18V20H23V18C23,15.33 17.67,14 15,14M6,10V7H4V10H1V12H4V15H6V12H9V10M15,12A4,4 0 0,0 19,8A4,4 0 0,0 15,4A4,4 0 0,0 11,8A4,4 0 0,0 15,12Z" 
+                              Fill="#10B981" Width="24" Height="24" Stretch="Uniform" Margin="0,0,10,0"/>
+                        <TextBlock Text="Thêm Người Dùng" FontSize="18" FontWeight="Bold" Foreground="#111827" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Form Inputs -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel>
+                        <!-- Username -->
+                        <TextBlock Text="Tên đăng nhập" Style="{StaticResource LabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="45"/>
+                                    <!-- Cố định chiều rộng Icon -->
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- Icon căn giữa chính xác -->
+                                <Path Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" 
+                                      Fill="#9CA3AF" Width="18" Height="18" Stretch="Uniform" 
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBox x:Name="txtUsername" Grid.Column="1" Style="{StaticResource InnerInputStyle}" ToolTip="Nhập tên đăng nhập"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Password -->
+                        <TextBlock Text="Mật khẩu" Style="{StaticResource LabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="45"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Path Data="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" 
+                                      Fill="#9CA3AF" Width="16" Height="16" Stretch="Uniform" 
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBox x:Name="txtPassword" Grid.Column="1" Style="{StaticResource InnerInputStyle}" ToolTip="Nhập mật khẩu"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Full Name -->
+                        <TextBlock Text="Họ và Tên" Style="{StaticResource LabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="45"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Path Data="M4,2H20A2,2 0 0,1 22,4V16A2,2 0 0,1 20,18H16L12,22L8,18H4A2,2 0 0,1 2,16V4A2,2 0 0,1 4,2M4,4V16H8.83L12,19.17L15.17,16H20V4H4Z" 
+                                      Fill="#9CA3AF" Width="18" Height="18" Stretch="Uniform" 
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBox x:Name="txtFullName" Grid.Column="1" Style="{StaticResource InnerInputStyle}" ToolTip="Nhập họ tên đầy đủ"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Role -->
+                        <TextBlock Text="Vai trò (Role)" Style="{StaticResource LabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="45"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Path Data="M12,5.5A3.5,3.5 0 0,1 15.5,9A3.5,3.5 0 0,1 12,12.5A3.5,3.5 0 0,1 8.5,9A3.5,3.5 0 0,1 12,5.5M5,8C5.56,6.38 7.7,5.15 10,5.03C10.36,4.64 10.83,4.35 11.36,4.18C11.6,4.09 11.03,2 12,2C13.86,2 12.37,4.09 12.64,4.18C13.17,4.35 13.64,4.64 14,5.03C16.3,5.15 18.44,6.38 19,8V19H5V8Z" 
+                                      Fill="#9CA3AF" Width="18" Height="18" Stretch="Uniform" 
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="cboRole" Grid.Column="1" Style="{StaticResource InnerComboStyle}" SelectedIndex="0">
+                                    <ComboBoxItem Content="Student" Tag="Student"/>
+                                    <ComboBoxItem Content="Teacher" Tag="Teacher"/>
+                                    <ComboBoxItem Content="Admin" Tag="Admin"/>
+                                </ComboBox>
+                            </Grid>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Footer Button -->
+                <Border Grid.Row="2" Padding="20" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0">
+                    <Button x:Name="btnAddUser" Content="Thêm mới" Click="BtnAddUser_Click" Height="45" Background="#10B981" Foreground="White" 
+                            FontSize="16" FontWeight="Bold" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Path Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Fill="White" Width="16" Height="16" Margin="0,0,8,0"/>
+                                        <ContentPresenter/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="#059669"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- === RIGHT: USER LIST === -->
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 1. Header -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                <TextBlock Text="Danh Sách Tài Khoản" FontSize="20" FontWeight="Bold" Foreground="#111827"/>
+                <TextBlock Text="Quản lý thông tin đăng nhập hệ thống" FontSize="14" Foreground="#6B7280" Margin="0,5,0,0"/>
+            </StackPanel>
+
+            <!-- 2. Toolbar Actions -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,15">
+                <!-- Import Excel -->
+                <Button Click="BtnImport_Click" Style="{StaticResource ToolbarButtonStyle}" Background="White" BorderBrush="#10B981" BorderThickness="1" Foreground="#10B981">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M15.2,20H13.8L12,16.8L10.2,20H8.8L11.2,16L9,12.5H10.4L12,15.1L13.6,12.5H15L12.8,16L15.2,20Z" 
+                              Fill="#10B981" Width="16" Height="16" Margin="0,0,8,0"/>
+                        <TextBlock Text="Nhập từ Excel"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Export -->
+                <Button Click="BtnExport_Click" Style="{StaticResource ToolbarButtonStyle}" Background="#3B82F6" BorderThickness="0" Foreground="White">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M16,13V15H13V19H11V15H8V13H11V9H13V13H16Z" 
+                              Fill="White" Width="16" Height="16" Margin="0,0,8,0"/>
+                        <TextBlock Text="Xuất Danh Sách"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <!-- 3. DataGrid -->
+            <Border Grid.Row="2" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="15" Color="Black" Opacity="0.05" ShadowDepth="2"/>
+                </Border.Effect>
+
+                <DataGrid x:Name="dgUsers" Margin="5" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding UserId}" Width="50" Foreground="#6B7280"/>
+
+                        <DataGridTextColumn Header="Tên Đăng Nhập" Binding="{Binding Username}" Width="150">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                    <Setter Property="Foreground" Value="#111827"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="Họ và Tên" Binding="{Binding FullName}" Width="*"/>
+
+                        <DataGridTextColumn Header="Vai trò" Binding="{Binding RoleName}" Width="100">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#059669"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTemplateColumn Header="Hành động" Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Click="BtnDeleteUser_Click" Tag="{Binding UserId}"
+                                            Width="30" Height="30" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Xóa người dùng">
+                                        <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" 
+                                              Fill="#EF4444" Width="18" Height="18" Stretch="Uniform"/>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

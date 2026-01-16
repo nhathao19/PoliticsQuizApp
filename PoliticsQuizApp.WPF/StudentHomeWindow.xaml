@@ -1,0 +1,174 @@
+﻿<Window x:Class="PoliticsQuizApp.WPF.StudentHomeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Hệ Thống Thi Trắc Nghiệm - Đăng Nhập" 
+        Height="600" Width="900" 
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <!-- Style cho các trường nhập liệu (Input Wrapper) -->
+        <Style x:Key="InputBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Height" Value="50"/>
+        </Style>
+
+        <!-- Style cho TextBox bên trong (bỏ viền mặc định) -->
+        <Style x:Key="CleanTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Padding" Value="5,0,5,0"/>
+        </Style>
+
+        <!-- Style cho Button Chính -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Padding="15,10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1D4ED8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1E40AF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Hình nền Gradient nhẹ nhàng -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#EFF6FF" Offset="0.0"/>
+                <GradientStop Color="#DBEAFE" Offset="1.0"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- Trang trí nền (Hình tròn mờ) -->
+        <Ellipse Width="300" Height="300" Fill="#BFDBFE" Opacity="0.5" Margin="-100,-100,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Ellipse Width="200" Height="200" Fill="#BFDBFE" Opacity="0.5" Margin="0,0,-50,-50" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+
+        <!-- MAIN CARD -->
+        <Border Background="White" Width="450" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                CornerRadius="16" Padding="40">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="5" Color="Gray" Opacity="0.15"/>
+            </Border.Effect>
+
+            <StackPanel>
+                <!-- Header -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,30">
+                    <!-- Icon Mũ cử nhân (Path vector) -->
+                    <Path Data="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" 
+                          Fill="#2563EB" Height="32" Width="32" Stretch="Uniform" Margin="0,0,10,0"/>
+                    <TextBlock Text="Cổng Đăng Nhập" FontSize="26" FontWeight="Bold" Foreground="#1F2937" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- 1. Mã Sinh Viên Input -->
+                <TextBlock Text="Mã Sinh Viên (User ID)" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,5"/>
+                <Border Style="{StaticResource InputBorderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Icon User -->
+                        <Path Grid.Column="0" Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" 
+                              Fill="#9CA3AF" Height="20" Width="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                        <!-- Đã xóa PlaceholderText để sửa lỗi -->
+                        <TextBox x:Name="txtStudentId" Grid.Column="1" Style="{StaticResource CleanTextBox}"
+                                 ToolTip="Nhập mã số sinh viên của bạn" 
+                                 VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- 2. Mã Truy Cập Input -->
+                <TextBlock Text="Mã Truy Cập (Access Code)" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,5"/>
+                <Border Style="{StaticResource InputBorderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Icon Key -->
+                        <Path Grid.Column="0" Data="M7,14A2,2 0 0,1 5,12A2,2 0 0,1 7,10A2,2 0 0,1 9,12A2,2 0 0,1 7,14M12.65,10C11.83,7.67 9.61,6 7,6A6,6 0 0,0 1,12A6,6 0 0,0 7,18C9.61,18 11.83,16.33 12.65,14H17V18H21V14H23V10H12.65Z" 
+                              Fill="#9CA3AF" Height="20" Width="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                        <TextBox x:Name="txtAccessCode" Grid.Column="1" Style="{StaticResource CleanTextBox}"
+                                 FontWeight="Bold" CharacterCasing="Upper"
+                                 ToolTip="Nhập mã bí mật được cấp"/>
+                    </Grid>
+                </Border>
+                <TextBlock Text="* Mã này được in trong phiếu báo thi của bạn" FontSize="11" Foreground="#9CA3AF" Margin="0,-10,0,15" FontStyle="Italic"/>
+
+                <!-- 3. Mã Đề Thi Input -->
+                <TextBlock Text="Mã Đề Thi" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,5"/>
+                <Border Style="{StaticResource InputBorderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Icon File/Book -->
+                        <Path Grid.Column="0" Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" 
+                              Fill="#9CA3AF" Height="20" Width="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                        <TextBox x:Name="txtExamCode" Grid.Column="1" Style="{StaticResource CleanTextBox}"
+                                 FontWeight="Bold" Foreground="#DC2626"/>
+                    </Grid>
+                </Border>
+
+                <!-- Start Button -->
+                <Button x:Name="btnStart" Content="BẮT ĐẦU LÀM BÀI" 
+                        Style="{StaticResource PrimaryButton}"
+                        Height="50" Margin="0,10,0,0"
+                        Click="BtnStart_Click"/>
+
+                <!-- Admin Link -->
+                <Button Content="Đăng nhập Quản trị viên" Margin="0,20,0,0" 
+                        HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" 
+                        Foreground="#6B7280" Cursor="Hand" Click="BtnAdmin_Click" FontSize="12">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <TextBlock Text="{TemplateBinding Content}" TextDecorations="Underline" Foreground="{TemplateBinding Foreground}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Foreground" Value="#2563EB"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

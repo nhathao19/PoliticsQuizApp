@@ -1,0 +1,93 @@
+﻿<Window x:Class="PoliticsQuizApp.WPF.ReviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:local="clr-namespace:PoliticsQuizApp.WPF"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Xem Lại Bài Thi" Height="700" Width="1200" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+    <Grid Background="#F5F5F5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="White" BorderBrush="#DDD" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="KẾT QUẢ CHI TIẾT" FontWeight="Bold" FontSize="16" Margin="10" HorizontalAlignment="Center" Foreground="#1565C0"/>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="icNavigator">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding Index}" Width="45" Height="45" Margin="5" Click="BtnNav_Click" Tag="{Binding}" FontWeight="Bold">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#FF9800"/>
+                                                    <Setter Property="BorderThickness" Value="3"/>
+                                                </DataTrigger>
+
+                                                <DataTrigger Binding="{Binding IsAnswered}" Value="True">
+                                                    <Setter Property="Background" Value="#4CAF50"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+
+                                                <DataTrigger Binding="{Binding IsAnswered}" Value="False">
+                                                    <Setter Property="Background" Value="#F44336"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <Button Content="Đóng" Grid.Row="2" Height="40" Margin="10" Click="BtnClose_Click"/>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="1" Margin="20">
+            <Border Background="White" CornerRadius="5" Padding="20" BorderBrush="#DDD" BorderThickness="1">
+                <Grid x:Name="gridContent">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="Câu hỏi:" FontWeight="Bold" Foreground="Gray"/>
+                        <RichTextBox IsReadOnly="True" 
+             Background="Transparent" 
+             BorderThickness="0" 
+             Margin="0,5,0,20"
+             local:RichTextHelper.FormattedText="{Binding QuestionData.Content}">
+                            <RichTextBox.Resources>
+                                <Style TargetType="{x:Type Paragraph}">
+                                    <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="FontSize" Value="18"/>
+                                </Style>
+                            </RichTextBox.Resources>
+                        </RichTextBox>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1">
+                        <StackPanel x:Name="pnlAnswers"/>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

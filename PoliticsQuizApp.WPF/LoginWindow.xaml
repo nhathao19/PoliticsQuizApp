@@ -1,0 +1,145 @@
+﻿<Window x:Class="PoliticsQuizApp.WPF.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Đăng Nhập Hệ Thống" Height="500" Width="800"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        FontFamily="Segoe UI" Background="#F3F4F6">
+
+    <Window.Resources>
+        <!-- Style cho Input Wrapper -->
+        <Style x:Key="InputBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Height" Value="50"/>
+        </Style>
+
+        <!-- Style cho TextBox/PasswordBox bên trong -->
+        <Style x:Key="InnerInputStyle" TargetType="Control">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+
+        <!-- Style cho Button Đăng Nhập -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1D4ED8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1E40AF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Nền Gradient 2 lớp -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#EFF6FF" Offset="0"/>
+                <GradientStop Color="#DBEAFE" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- Trang trí nền (Hình tròn mờ) -->
+        <Ellipse Width="300" Height="300" Fill="#BFDBFE" Opacity="0.4" Margin="-100,-100,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Ellipse Width="200" Height="200" Fill="#BFDBFE" Opacity="0.4" Margin="0,0,-50,-50" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*"/>
+                <!-- Phần Hình ảnh minh họa -->
+                <ColumnDefinition Width="*"/>
+                <!-- Phần Form Đăng nhập -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Cột Trái: Banner/Giới thiệu -->
+            <Grid Grid.Column="0" VerticalAlignment="Center" Margin="50">
+                <StackPanel>
+                    <Path Data="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" 
+                          Fill="#2563EB" Height="80" Width="80" Stretch="Uniform" HorizontalAlignment="Left" Margin="0,0,0,20"/>
+
+                    <TextBlock Text="Hệ Thống Quản Lý" FontSize="32" FontWeight="Bold" Foreground="#1E3A8A"/>
+                    <TextBlock Text="Thi Trắc Nghiệm" FontSize="32" FontWeight="Bold" Foreground="#2563EB" Margin="0,-5,0,20"/>
+
+                    <TextBlock Text="Giải pháp toàn diện cho việc tổ chức, quản lý và chấm thi tự động. Dành cho Giảng viên &amp; Quản trị viên." 
+                               FontSize="16" Foreground="#4B5563" TextWrapping="Wrap" LineHeight="24"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Cột Phải: Form Đăng nhập -->
+            <Border Grid.Column="1" Background="White" CornerRadius="16" Margin="20,40,40,40">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="30" Color="Black" Opacity="0.1" ShadowDepth="10"/>
+                </Border.Effect>
+
+                <StackPanel VerticalAlignment="Center" Margin="40">
+                    <TextBlock Text="Đăng Nhập" FontSize="26" FontWeight="Bold" Foreground="#111827" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                    <TextBlock Text="Vui lòng nhập thông tin quản trị" FontSize="14" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,0,0,30"/>
+
+                    <!-- Username -->
+                    <TextBlock Text="Tên đăng nhập" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,5"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Path Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" 
+                                  Fill="#9CA3AF" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBox x:Name="txtUsername" Grid.Column="1" Style="{StaticResource InnerInputStyle}" 
+                                     ToolTip="Nhập tên đăng nhập của bạn"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Password -->
+                    <TextBlock Text="Mật khẩu" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,5"/>
+                    <Border Style="{StaticResource InputBorderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Path Data="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" 
+                                  Fill="#9CA3AF" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <PasswordBox x:Name="txtPassword" Grid.Column="1" Style="{StaticResource InnerInputStyle}" 
+                                         ToolTip="Nhập mật khẩu"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Forgot Password Link -->
+                    <TextBlock Text="Quên mật khẩu?" FontSize="13" Foreground="#2563EB" 
+                               HorizontalAlignment="Right" Cursor="Hand" TextDecorations="Underline" Margin="0,-5,0,25"/>
+
+                    <!-- Login Button -->
+                    <Button Content="ĐĂNG NHẬP" Click="BtnLogin_Click" Style="{StaticResource PrimaryButtonStyle}"/>
+
+                    <!-- Error Message -->
+                    <TextBlock x:Name="lblStatus" Foreground="#DC2626" FontWeight="SemiBold" 
+                               HorizontalAlignment="Center" Margin="0,20,0,0" TextWrapping="Wrap" TextAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

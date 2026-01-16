@@ -1,0 +1,237 @@
+﻿using Microsoft.EntityFrameworkCore;
+using PoliticsQuizApp.Data;
+using PoliticsQuizApp.Data.Models;
+using PoliticsQuizApp.WPF.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace PoliticsQuizApp.WPF.Services
+{
+    public class ExamService
+    {
+        private readonly PoliticsQuizDbContext _context;
+
+        public ExamService()
+        {
+            _context = new PoliticsQuizDbContext();
+        }
+
+        // ==========================================
+        // PHẦN 1: DÀNH CHO ADMIN (QUẢN LÝ ĐỀ THI)
+        // ==========================================
+
+        // 1. Lấy danh sách tất cả đề thi
+        public List<Exam> GetAllExams()
+        {
+            return _context.Exams
+                           .OrderByDescending(e => e.ExamId)
+                           .ToList();
+        }
+
+        // 2. Lấy danh sách Chủ đề
+        public List<Topic> GetAllTopics()
+        {
+            return _context.Topics.ToList();
+        }
+
+        // 3. Thêm đề thi mới (Cấu hình ma trận câu hỏi)
+        public bool AddExam(string code, string title, int? topicId, int duration, int easy, int medium, int hard)
+        {
+            try
+            {
+                if (_context.Exams.Any(e => e.ExamCode == code)) return false;
+
+                var exam = new Exam
+                {
+                    ExamCode = code,
+                    Title = title,
+                    DurationMinutes = duration,
+                    TopicID = topicId,
+
+                    // Cấu hình ma trận
+                    EasyCount = easy,
+                    MediumCount = medium,
+                    HardCount = hard,
+                    TotalQuestions = easy + medium + hard,
+
+                    IsActive = false
+                };
+
+                _context.Exams.Add(exam);
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        // 4. Bật/Tắt trạng thái đề thi
+        public bool ToggleExamStatus(int examId)
+        {
+            try
+            {
+                var exam = _context.Exams.Find(examId);
+                if (exam == null) return false;
+
+                // Đảo ngược trạng thái
+                exam.IsActive = !(exam.IsActive ?? false);
+                _context.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // 5. Xóa đề thi
+        public bool DeleteExam(int examId)
+        {
+            try
+            {
+                var exam = _context.Exams.Find(examId);
+                if (exam == null) return false;
+
+                _context.Exams.Remove(exam);
+                _context.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // ==========================================
+        // PHẦN 2: DÀNH CHO SINH VIÊN (LÀM BÀI)
+        // ==========================================
+
+        public Exam GetExamByCode(string examCode)
+        {
+            return _context.Exams.FirstOrDefault(e => e.ExamCode == examCode);
+        }
+
+        public List<QuestionViewModel> GenerateExamQuestions(int examId, int v)
+        {
+            var exam = _context.Exams.Find(examId);
+            if (exam == null) return new List<QuestionViewModel>();
+
+            List<Question> finalQuestions = new List<Question>();
+
+            // -- Lấy câu DỄ --
+            if (exam.EasyCount > 0)
+            {
+                var qs = _context.Questions
+                    .Where(q => q.Difficulty == 1 && (exam.TopicID == null || q.TopicId == exam.TopicID))
+                    .OrderBy(x => Guid.NewGuid()).Take((int)exam.EasyCount)
+                    .Include(q => q.Answers).ToList();
+                finalQuestions.AddRange(qs);
+            }
+
+            // -- Lấy câu TRUNG BÌNH --
+            if (exam.MediumCount > 0)
+            {
+                var qs = _context.Questions
+                    .Where(q => q.Difficulty == 2 && (exam.TopicID == null || q.TopicId == exam.TopicID))
+                    .OrderBy(x => Guid.NewGuid()).Take((int)exam.MediumCount)
+                    .Include(q => q.Answers).ToList();
+                finalQuestions.AddRange(qs);
+            }
+
+            // -- Lấy câu KHÓ --
+            if (exam.HardCount > 0)
+            {
+                var qs = _context.Questions
+                    .Where(q => q.Difficulty == 3 && (exam.TopicID == null || q.TopicId == exam.TopicID))
+                    .OrderBy(x => Guid.NewGuid()).Take((int)exam.HardCount)
+                    .Include(q => q.Answers).ToList();
+                finalQuestions.AddRange(qs);
+            }
+
+            // Chuyển sang ViewModel
+            var viewModels = new List<QuestionViewModel>();
+            int index = 1;
+            finalQuestions = finalQuestions.OrderBy(x => Guid.NewGuid()).ToList(); // Trộn lần cuối
+
+            foreach (var q in finalQuestions)
+            {
+                var finalAnswers = q.Answers.ToList();
+                // Logic xáo trộn đáp án nếu cần (mặc định để ngẫu nhiên)
+                finalAnswers = finalAnswers.OrderBy(a => Guid.NewGuid()).ToList();
+
+                viewModels.Add(new QuestionViewModel
+                {
+                    QuestionData = q,
+                    Index = index++,
+                    Answers = finalAnswers
+                });
+            }
+            return viewModels;
+        }
+
+        public bool SubmitExam(int userId, int examId, double score, DateTime startTime, List<QuestionViewModel> questionViewModels)
+        {
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var session = new TestSession
+                    {
+                        UserId = userId,
+                        ExamId = examId,
+                        StartTime = startTime,
+                        EndTime = DateTime.Now,
+                        Score = score,
+                        Status = 1 // Submitted
+                    };
+                    _context.TestSessions.Add(session);
+                    _context.SaveChanges();
+
+                    foreach (var q in questionViewModels)
+                    {
+                        _context.StudentAnswers.Add(new StudentAnswer
+                        {
+                            SessionId = session.SessionId,
+                            QuestionId = q.QuestionData.QuestionID,
+                            SelectedAnswerId = q.UserSelectedAnswerId,
+                            IsFlagged = q.IsFlagged
+                        });
+                    }
+                    _context.SaveChanges();
+                    transaction.Commit();
+                    return true;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    return false;
+                }
+            }
+        }
+
+        // ==========================================
+        // PHẦN 3: BÁO CÁO & LỊCH SỬ (ĐÂY LÀ PHẦN BỊ THIẾU)
+        // ==========================================
+        public List<TestResultViewModel> GetExamHistory()
+        {
+            // Dùng LINQ để nối bảng: TestSessions + Users + Exams
+            var query = from session in _context.TestSessions
+                        join user in _context.Users on session.UserId equals user.UserId
+                        join exam in _context.Exams on session.ExamId equals exam.ExamId
+                        orderby session.StartTime descending
+                        select new TestResultViewModel
+                        {
+                            SessionID = session.SessionId,
+                            StudentName = user.FullName,
+                            ExamTitle = exam.Title,
+                            Score = (double)(session.Score ?? 0),
+                            StartTime = (DateTime)(session.StartTime ?? DateTime.Now)
+                        };
+
+            return query.ToList();
+        }
+    }
+}

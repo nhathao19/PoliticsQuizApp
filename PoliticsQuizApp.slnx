@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="PoliticsQuizApp.Core/PoliticsQuizApp.Core.csproj" />
+  <Project Path="PoliticsQuizApp.Data/PoliticsQuizApp.Data.csproj" />
+  <Project Path="PoliticsQuizApp.WPF/PoliticsQuizApp.WPF.csproj" />
+</Solution>

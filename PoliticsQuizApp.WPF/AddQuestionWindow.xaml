@@ -1,0 +1,303 @@
+﻿<Window x:Class="PoliticsQuizApp.WPF.AddQuestionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Thêm Câu Hỏi Mới" Height="700" Width="650"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        FontFamily="Segoe UI" Background="#F9FAFB">
+
+    <Window.Resources>
+        <!-- Style cho Label -->
+        <Style TargetType="TextBlock" x:Key="LabelStyle">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <!-- Style cho Khung nhập liệu (Input Wrapper) -->
+        <Style x:Key="InputBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="5"/>
+        </Style>
+
+        <!-- Style cho TextBox/ComboBox bên trong -->
+        <Style TargetType="Control" x:Key="InnerInputStyle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="5,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="35"/>
+        </Style>
+
+        <!-- Style cho Placeholder Text -->
+        <Style x:Key="PlaceholderTextStyle" TargetType="TextBlock">
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Header -->
+            <RowDefinition Height="*"/>
+            <!-- Content -->
+            <RowDefinition Height="Auto"/>
+            <!-- Footer -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. HEADER -->
+        <Border Grid.Row="0" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="20">
+            <StackPanel Orientation="Horizontal">
+                <Path Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" 
+                      Fill="#2563EB" Height="24" Width="24" Stretch="Uniform" Margin="0,0,10,0"/>
+                <TextBlock Text="Thêm Mới Câu Hỏi" FontSize="20" FontWeight="Bold" Foreground="#111827" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 2. MAIN CONTENT -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="20">
+            <StackPanel>
+
+                <!-- Row 1: Chủ đề & Độ khó -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Chủ đề (Có nút +) -->
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Chủ đề / Chương" Style="{StaticResource LabelStyle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- ComboBox Chủ đề -->
+                            <Border Style="{StaticResource InputBorderStyle}">
+                                <ComboBox x:Name="cboTopics" Style="{StaticResource InnerInputStyle}" DisplayMemberPath="TopicName" SelectedValuePath="TopicId"/>
+                            </Border>
+
+                            <!-- TextBox nhập chủ đề mới (Ẩn mặc định) -->
+                            <Border x:Name="borderNewTopic" Style="{StaticResource InputBorderStyle}" Visibility="Collapsed">
+                                <TextBox x:Name="txtNewTopic" Style="{StaticResource InnerInputStyle}" ToolTip="Nhập tên chủ đề mới..."/>
+                            </Border>
+
+                            <!-- Nút Thêm (+) -->
+                            <Button x:Name="btnToggleTopic" Grid.Column="1" Click="BtnToggleTopic_Click"
+                                    Width="40" Height="40" Margin="10,0,0,0"
+                                    Background="#E0F2FE" BorderThickness="0" Cursor="Hand" ToolTip="Thêm chủ đề mới">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="6"/>
+                                    </Style>
+                                </Button.Resources>
+                                <Path Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Fill="#0284C7" Width="16" Height="16" Stretch="Uniform"/>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Độ khó -->
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Độ khó" Style="{StaticResource LabelStyle}"/>
+                        <Border Style="{StaticResource InputBorderStyle}">
+                            <ComboBox x:Name="cboDifficulty" Style="{StaticResource InnerInputStyle}" SelectedIndex="0">
+                                <ComboBoxItem Content="Dễ"/>
+                                <ComboBoxItem Content="Trung bình"/>
+                                <ComboBoxItem Content="Khó"/>
+                            </ComboBox>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Row 2: Nội dung câu hỏi -->
+                <StackPanel Margin="0,0,0,25">
+                    <TextBlock Text="Nội dung câu hỏi" Style="{StaticResource LabelStyle}"/>
+                    <Border Style="{StaticResource InputBorderStyle}" MinHeight="100">
+                        <Grid>
+                            <TextBox x:Name="txtContent" Style="{StaticResource InnerInputStyle}" Height="Auto" 
+         VerticalContentAlignment="Top" Padding="5"
+         TextWrapping="Wrap" AcceptsReturn="True" 
+         VerticalScrollBarVisibility="Auto" Panel.ZIndex="2"/>
+
+                            <!-- Placeholder Content -->
+                            <TextBlock Text="Nhập câu hỏi tại đây..." Margin="5,8,0,0" VerticalAlignment="Top">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource PlaceholderTextStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=txtContent, UpdateSourceTrigger=PropertyChanged}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <!-- Row 3: Các đáp án -->
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <Path Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z" 
+                              Fill="#059669" Width="20" Height="20" Margin="0,0,8,0"/>
+                        <TextBlock Text="Nhập đáp án &amp; Chọn câu đúng" FontSize="16" FontWeight="Bold" Foreground="#111827"/>
+                    </StackPanel>
+
+                    <!-- Đáp án A -->
+                    <Border Background="White" CornerRadius="8" BorderBrush="#E5E7EB" BorderThickness="1" Margin="0,0,0,10" Padding="5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <RadioButton x:Name="rbA" GroupName="CorrectAnswer" VerticalAlignment="Center" HorizontalAlignment="Center" Cursor="Hand">
+                                <RadioButton.LayoutTransform>
+                                    <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                                </RadioButton.LayoutTransform>
+                            </RadioButton>
+
+                            <TextBox x:Name="txtAnsA" Grid.Column="1" Style="{StaticResource InnerInputStyle}" Panel.ZIndex="2"/>
+
+                            <TextBlock Grid.Column="1" Text="Nhập đáp án A...">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource PlaceholderTextStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=txtAnsA, UpdateSourceTrigger=PropertyChanged}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+
+                    <!-- Đáp án B -->
+                    <Border Background="White" CornerRadius="8" BorderBrush="#E5E7EB" BorderThickness="1" Margin="0,0,0,10" Padding="5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <RadioButton x:Name="rbB" GroupName="CorrectAnswer" VerticalAlignment="Center" HorizontalAlignment="Center" Cursor="Hand">
+                                <RadioButton.LayoutTransform>
+                                    <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                                </RadioButton.LayoutTransform>
+                            </RadioButton>
+
+                            <TextBox x:Name="txtAnsB" Grid.Column="1" Style="{StaticResource InnerInputStyle}" Panel.ZIndex="2"/>
+
+                            <TextBlock Grid.Column="1" Text="Nhập đáp án B...">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource PlaceholderTextStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=txtAnsB, UpdateSourceTrigger=PropertyChanged}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+
+                    <!-- Đáp án C -->
+                    <Border Background="White" CornerRadius="8" BorderBrush="#E5E7EB" BorderThickness="1" Margin="0,0,0,10" Padding="5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <RadioButton x:Name="rbC" GroupName="CorrectAnswer" VerticalAlignment="Center" HorizontalAlignment="Center" Cursor="Hand">
+                                <RadioButton.LayoutTransform>
+                                    <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                                </RadioButton.LayoutTransform>
+                            </RadioButton>
+
+                            <TextBox x:Name="txtAnsC" Grid.Column="1" Style="{StaticResource InnerInputStyle}" Panel.ZIndex="2"/>
+
+                            <TextBlock Grid.Column="1" Text="Nhập đáp án C...">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource PlaceholderTextStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=txtAnsC, UpdateSourceTrigger=PropertyChanged}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+
+                    <!-- Đáp án D -->
+                    <Border Background="White" CornerRadius="8" BorderBrush="#E5E7EB" BorderThickness="1" Margin="0,0,0,10" Padding="5">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <RadioButton x:Name="rbD" GroupName="CorrectAnswer" VerticalAlignment="Center" HorizontalAlignment="Center" Cursor="Hand">
+                                <RadioButton.LayoutTransform>
+                                    <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                                </RadioButton.LayoutTransform>
+                            </RadioButton>
+
+                            <TextBox x:Name="txtAnsD" Grid.Column="1" Style="{StaticResource InnerInputStyle}" Panel.ZIndex="2"/>
+
+                            <TextBlock Grid.Column="1" Text="Nhập đáp án D...">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource PlaceholderTextStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=txtAnsD, UpdateSourceTrigger=PropertyChanged}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 3. FOOTER -->
+        <Border Grid.Row="2" Background="#F3F4F6" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0" Padding="20">
+            <Button Content="LƯU CÂU HỎI MỚI" Click="BtnSave_Click" 
+                    Height="45" Background="#16A34A" Foreground="White" 
+                    FontSize="16" FontWeight="Bold" Cursor="Hand">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Path Data="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" 
+                                      Fill="White" Width="18" Height="18" Margin="0,0,10,0"/>
+                                <ContentPresenter/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#15803D"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Border>
+    </Grid>
+</Window>
