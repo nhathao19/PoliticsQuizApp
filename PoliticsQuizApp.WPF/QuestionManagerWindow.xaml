@@ -1,0 +1,157 @@
+﻿<Window x:Class="PoliticsQuizApp.WPF.QuestionManagerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Quản Lý Ngân Hàng Câu Hỏi" Height="700" Width="1100"
+        WindowStartupLocation="CenterScreen" Background="#F3F4F6">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="DANH SÁCH CHƯƠNG" FontWeight="Bold" Foreground="#374151" Margin="15,20,0,10" FontSize="14"/>
+
+                <ListBox x:Name="lstTopics" Grid.Row="1" BorderThickness="0" Background="Transparent" 
+                         SelectionChanged="LstTopics_SelectionChanged" Padding="5">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="10" CornerRadius="4" Margin="0,2">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z" 
+                                          Fill="#F59E0B" Width="20" Height="20" Margin="0,0,10,0"/>
+                                    <TextBlock Text="{Binding TopicName}" FontSize="14" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="bd" Background="Transparent" CornerRadius="4">
+                                            <ContentPresenter/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#E0F2FE"/>
+                                                <Setter Property="Foreground" Value="#0284C7"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="#F3F4F6"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+
+                <Grid Grid.Row="2" Margin="15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Content="+ Thêm Chương" Click="BtnAddTopic_Click"
+                            Height="40" Background="#2563EB" BorderBrush="#D1D5DB" BorderThickness="0"
+                            Foreground="White" FontWeight="SemiBold" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
+                    <Button Grid.Column="2" Click="BtnDeleteTopic_Click"
+                            Height="40" Background="#EF4444" BorderThickness="0"
+                            Foreground="White" Cursor="Hand" ToolTip="Xóa chương đang chọn">
+                        <TextBlock Text="🗑" FontSize="16"/>
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
+
+
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="1" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                <TextBlock x:Name="lblCurrentTopic" Text="Vui lòng chọn chương..." FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Width="300" TextTrimming="CharacterEllipsis"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,0,0">
+                    <Button Click="BtnAddQuestion_Click" Background="#2563EB" Foreground="White" Padding="15,8" Margin="0,0,10,0" BorderThickness="0" Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="+ Thêm Câu Hỏi"/>
+                        </StackPanel>
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
+                    <Button Click="BtnDeleteSelected_Click" Background="#EF4444" Foreground="White" Padding="15,8" Margin="0,0,10,0" BorderThickness="0" Cursor="Hand" ToolTip="Xóa các câu đang tích chọn">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🗑 Xóa Đã Chọn"/>
+                        </StackPanel>
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
+                    <Button Click="BtnDeleteAllInTopic_Click" Background="White" BorderBrush="#EF4444" BorderThickness="1" Foreground="#EF4444" Padding="15,8" Cursor="Hand" ToolTip="Xóa sạch câu hỏi của chương này">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚠ Xóa Hết Chương Này"/>
+                        </StackPanel>
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+
+            <DataGrid x:Name="dgQuestions" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" 
+                      Background="White" BorderBrush="#E5E7EB" BorderThickness="1" RowHeight="40">
+                <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Binding="{Binding IsSelectedInManager, UpdateSourceTrigger=PropertyChanged}" 
+                                            ElementStyle="{StaticResource {x:Type CheckBox}}"
+                                            EditingElementStyle="{StaticResource {x:Type CheckBox}}"
+                                            Width="40"/>
+
+                    <DataGridTextColumn Header="ID" Binding="{Binding QuestionData.QuestionID}" Width="50" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Nội dung câu hỏi" Binding="{Binding QuestionData.Content}" Width="*" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Mức độ" Binding="{Binding QuestionData.Difficulty}" Width="70" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <TextBlock x:Name="lblCount" Grid.Row="2" Text="Tổng số câu: 0" Margin="0,10,0,0" Foreground="Gray" FontStyle="Italic"/>
+        </Grid>
+    </Grid>
+</Window>

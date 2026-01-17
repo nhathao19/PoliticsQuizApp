@@ -108,8 +108,13 @@ namespace PoliticsQuizApp.WPF.Services
         // 3. Hàm lấy chi tiết bài làm (Cho chức năng Review)
         public List<QuestionViewModel> GetReviewDetails(int sessionId)
         {
-            var studentAnswers = _context.StudentAnswers.Where(sa => sa.SessionId == sessionId).ToList();
-            var questionIds = studentAnswers.Select(sa => sa.QuestionId).ToList();
+            // 1. Lấy TẤT CẢ câu trả lời của session này
+            var allStudentAnswers = _context.StudentAnswers
+                                            .Where(sa => sa.SessionId == sessionId)
+                                            .ToList();
+
+            // 2. Lấy danh sách ID câu hỏi (Distinct để loại bỏ trùng lặp do 1 câu có nhiều đáp án)
+            var questionIds = allStudentAnswers.Select(sa => sa.QuestionId).Distinct().ToList();
 
             var questions = _context.Questions
                                     .Include(q => q.Answers)
@@ -121,25 +126,38 @@ namespace PoliticsQuizApp.WPF.Services
 
             foreach (var q in questions)
             {
-                var userAns = studentAnswers.FirstOrDefault(sa => sa.QuestionId == q.QuestionID);
+                // Lấy tất cả các dòng user chọn cho câu hỏi này
+                var userAnswersForThisQ = allStudentAnswers
+                                            .Where(sa => sa.QuestionId == q.QuestionID)
+                                            .Select(sa => sa.SelectedAnswerId)
+                                            .Where(id => id.HasValue)
+                                            .Select(id => id.Value)
+                                            .ToList();
+
                 var qVM = new QuestionViewModel
                 {
                     QuestionData = q,
                     Index = index++,
                     Answers = q.Answers.ToList(),
-                    UserSelectedAnswerId = userAns?.SelectedAnswerId ?? 0,
-                    IsFlagged = userAns?.IsFlagged ?? false
+
+                    // Gán lại danh sách (List) thay vì 1 biến đơn
+                    UserSelectedAnswerIds = userAnswersForThisQ,
+
+                    IsFlagged = allStudentAnswers.FirstOrDefault(sa => sa.QuestionId == q.QuestionID)?.IsFlagged ?? false
                 };
 
-                var correctAns = q.Answers.FirstOrDefault(a => a.IsCorrect);
-                if (correctAns != null && correctAns.AnswerId == qVM.UserSelectedAnswerId)
+                // Logic tô màu: Đúng hết mới được tô xanh
+                var correctIds = q.Answers.Where(a => a.IsCorrect).Select(a => a.AnswerId).ToList();
+
+                if (correctIds.Count == userAnswersForThisQ.Count && !correctIds.Except(userAnswersForThisQ).Any())
                 {
-                    qVM.IsAnswered = true; // Đúng
+                    qVM.IsAnswered = true; // Đúng hoàn toàn
                 }
                 else
                 {
-                    qVM.IsAnswered = false; // Sai
+                    qVM.IsAnswered = false; // Sai hoặc thiếu
                 }
+
                 viewModels.Add(qVM);
             }
             return viewModels;

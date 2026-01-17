@@ -108,7 +108,24 @@ namespace PoliticsQuizApp.WPF.Services
         // ==========================================
         // PHẦN 2: DÀNH CHO SINH VIÊN (LÀM BÀI)
         // ==========================================
-
+        public Exam GetExamById(int examId)
+        {
+            return _context.Exams.FirstOrDefault(x => x.ExamId == examId);
+        }
+        public List<Question> GetQuestionsByExamId(int examId)
+        {
+            using (var context = new PoliticsQuizDbContext())
+            {
+                // Logic: Vào bảng ExamQuestions -> Lấy Question -> Lấy luôn Answers
+                var questions = context.ExamQuestions
+                                       .Where(eq => eq.ExamId == examId)
+                                       .Include(eq => eq.Question)
+                                          .ThenInclude(q => q.Answers)
+                                       .Select(eq => eq.Question)
+                                       .ToList();
+                return questions;
+            }
+        }
         public Exam GetExamByCode(string examCode)
         {
             return _context.Exams.FirstOrDefault(e => e.ExamCode == examCode);
@@ -171,42 +188,49 @@ namespace PoliticsQuizApp.WPF.Services
             }
             return viewModels;
         }
-
-        public bool SubmitExam(int userId, int examId, double score, DateTime startTime, List<QuestionViewModel> questionViewModels)
+        public bool SubmitExam(int userId, int examId, double score, DateTime startTime, List<QuestionViewModel> questions)
         {
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var context = new PoliticsQuizDbContext())
             {
                 try
                 {
+                    // 1. Lưu phiên thi (TestSession) - GIỮ NGUYÊN
                     var session = new TestSession
                     {
                         UserId = userId,
                         ExamId = examId,
                         StartTime = startTime,
                         EndTime = DateTime.Now,
-                        Score = score,
-                        Status = 1 // Submitted
+                        Score = score
                     };
-                    _context.TestSessions.Add(session);
-                    _context.SaveChanges();
+                    context.TestSessions.Add(session);
+                    context.SaveChanges();
 
-                    foreach (var q in questionViewModels)
+                    // 2. Lưu chi tiết bài làm (StudentAnswer) - SỬA ĐOẠN NÀY
+                    foreach (var q in questions)
                     {
-                        _context.StudentAnswers.Add(new StudentAnswer
+                        // Nếu sinh viên không chọn gì cả -> Bỏ qua hoặc lưu null
+                        if (q.UserSelectedAnswerIds == null || q.UserSelectedAnswerIds.Count == 0) continue;
+
+                        // Với mỗi đáp án được chọn -> Lưu 1 dòng vào DB
+                        foreach (var ansId in q.UserSelectedAnswerIds)
                         {
-                            SessionId = session.SessionId,
-                            QuestionId = q.QuestionData.QuestionID,
-                            SelectedAnswerId = q.UserSelectedAnswerId,
-                            IsFlagged = q.IsFlagged
-                        });
+                            var studentAns = new StudentAnswer
+                            {
+                                SessionId = session.SessionId,
+                                QuestionId = q.QuestionData.QuestionID,
+                                SelectedAnswerId = ansId, // Lưu từng ID một
+                                IsFlagged = q.IsFlagged
+                            };
+                            context.StudentAnswers.Add(studentAns);
+                        }
                     }
-                    _context.SaveChanges();
-                    transaction.Commit();
+
+                    context.SaveChanges();
                     return true;
                 }
                 catch
                 {
-                    transaction.Rollback();
                     return false;
                 }
             }
@@ -233,5 +257,6 @@ namespace PoliticsQuizApp.WPF.Services
 
             return query.ToList();
         }
+       
     }
 }

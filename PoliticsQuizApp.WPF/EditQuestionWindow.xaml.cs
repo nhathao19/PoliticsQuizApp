@@ -1,4 +1,4 @@
-﻿using PoliticsQuizApp.Data.Models; // Để dùng model Topic
+﻿using PoliticsQuizApp.Data.Models;
 using PoliticsQuizApp.WPF.Services;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +9,14 @@ namespace PoliticsQuizApp.WPF
 {
     public partial class EditQuestionWindow : Window
     {
+        private QuestionService _service;
         private long _questionId;
-        private QuestionService _questionService;
-        private TopicService _topicService;
+        private Question _originalQuestion;
 
-        // Constructor chỉ cần nhận ID là đủ, vì ta sẽ query lại DB để lấy detail
         public EditQuestionWindow(long questionId)
         {
             InitializeComponent();
-            _questionService = new QuestionService();
-            _topicService = new TopicService();
+            _service = new QuestionService();
             _questionId = questionId;
 
             LoadInitialData();
@@ -26,93 +24,93 @@ namespace PoliticsQuizApp.WPF
 
         private void LoadInitialData()
         {
-            // 1. Load ComboBox Topics
-            cboTopics.ItemsSource = _topicService.GetAllTopics();
+            // 1. Load danh sách chủ đề
+            cboTopics.ItemsSource = _service.GetTopics();
 
             // 2. Load thông tin câu hỏi
-            var q = _questionService.GetQuestionDetail(_questionId);
-            if (q != null)
-            {
-                txtContent.Text = q.Content;
-                cboTopics.SelectedValue = q.TopicId;
+            _originalQuestion = _service.GetQuestionDetail(_questionId);
 
-                // Set độ khó (Trừ 1 vì index bắt đầu từ 0, còn Tag/Value ta đang set logic riêng)
-                // Cách an toàn nhất là check tag
-                foreach (ComboBoxItem item in cboDifficulty.Items)
+            if (_originalQuestion != null)
+            {
+                // Fill thông tin cơ bản
+                txtContent.Text = _originalQuestion.Content;
+                cboTopics.SelectedValue = _originalQuestion.TopicId;
+                if (cboDifficulty.Items.Count >= _originalQuestion.Difficulty)
                 {
-                    if (item.Tag.ToString() == q.Difficulty.ToString())
-                    {
-                        cboDifficulty.SelectedItem = item;
-                        break;
-                    }
+                    cboDifficulty.SelectedIndex = _originalQuestion.Difficulty - 1;
                 }
 
-                // 3. Load 4 Đáp án lên giao diện
-                // Lưu ý: List Answers có thể không theo thứ tự, ta cứ load lần lượt
-                var answers = q.Answers.ToList();
+                // Fill đáp án (Logic mới: Hỗ trợ nhiều đáp án đúng)
+                var answers = _originalQuestion.Answers.ToList();
                 if (answers.Count >= 4)
                 {
                     txtAnsA.Text = answers[0].Content;
-                    radA.IsChecked = answers[0].IsCorrect;
+                    chkCorrectA.IsChecked = answers[0].IsCorrect;
 
                     txtAnsB.Text = answers[1].Content;
-                    radB.IsChecked = answers[1].IsCorrect;
+                    chkCorrectB.IsChecked = answers[1].IsCorrect;
 
                     txtAnsC.Text = answers[2].Content;
-                    radC.IsChecked = answers[2].IsCorrect;
+                    chkCorrectC.IsChecked = answers[2].IsCorrect;
 
                     txtAnsD.Text = answers[3].Content;
-                    radD.IsChecked = answers[3].IsCorrect;
+                    chkCorrectD.IsChecked = answers[3].IsCorrect;
                 }
             }
         }
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            // Validate sơ bộ
+            // Validate
             if (string.IsNullOrWhiteSpace(txtContent.Text) || cboTopics.SelectedValue == null)
             {
-                MessageBox.Show("Vui lòng nhập nội dung và chọn chủ đề!");
+                MessageBox.Show("Vui lòng nhập đủ thông tin.");
                 return;
             }
 
-            // Lấy độ khó
-            var selectedDiffItem = cboDifficulty.SelectedItem as ComboBoxItem;
-            byte difficulty = byte.Parse(selectedDiffItem.Tag.ToString());
-
-            // Lấy Topic ID
-            int topicId = (int)cboTopics.SelectedValue;
-
-            // Gom 4 đáp án vào List
-            List<string> newAnswers = new List<string>
+            if (chkCorrectA.IsChecked == false && chkCorrectB.IsChecked == false &&
+                chkCorrectC.IsChecked == false && chkCorrectD.IsChecked == false)
             {
-                txtAnsA.Text, txtAnsB.Text, txtAnsC.Text, txtAnsD.Text
+                MessageBox.Show("Vui lòng chọn ít nhất 1 đáp án đúng!");
+                return;
+            }
+
+            // 1. Tạo đối tượng Question cần update
+            var updatedQ = new Question
+            {
+                QuestionID = _questionId, // Quan trọng: Phải có ID để biết sửa câu nào
+                Content = txtContent.Text,
+                TopicId = (int)cboTopics.SelectedValue,
+                Difficulty = (byte)(cboDifficulty.SelectedIndex + 1)
             };
 
-            // Tìm xem ô nào được check (0=A, 1=B, 2=C, 3=D)
-            int correctIndex = 0;
-            if (radB.IsChecked == true) correctIndex = 1;
-            if (radC.IsChecked == true) correctIndex = 2;
-            if (radD.IsChecked == true) correctIndex = 3;
+            // 2. Tạo danh sách Answer mới (theo Checkbox)
+            var newAnswers = new List<Answer>
+            {
+                new Answer { Content = txtAnsA.Text, IsCorrect = chkCorrectA.IsChecked == true },
+                new Answer { Content = txtAnsB.Text, IsCorrect = chkCorrectB.IsChecked == true },
+                new Answer { Content = txtAnsC.Text, IsCorrect = chkCorrectC.IsChecked == true },
+                new Answer { Content = txtAnsD.Text, IsCorrect = chkCorrectD.IsChecked == true }
+            };
 
-            // Gọi Service update
-            bool result = _questionService.UpdateQuestionFull(_questionId, txtContent.Text, topicId, difficulty, newAnswers, correctIndex);
+            // 3. Gọi Service (Hàm này nhận đúng 2 tham số: Question và List<Answer>)
+            bool result = _service.UpdateQuestionFull(updatedQ, newAnswers);
 
             if (result)
             {
                 MessageBox.Show("Cập nhật thành công!");
-                DialogResult = true;
-                Close();
+                this.DialogResult = true;
+                this.Close();
             }
             else
             {
-                MessageBox.Show("Có lỗi xảy ra khi lưu!");
+                MessageBox.Show("Lỗi khi cập nhật dữ liệu.");
             }
         }
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
-            Close();
+            this.Close();
         }
     }
 }

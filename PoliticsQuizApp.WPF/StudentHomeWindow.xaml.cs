@@ -74,6 +74,7 @@ namespace PoliticsQuizApp.WPF
         private void BtnAdmin_Click(object sender, RoutedEventArgs e)
         {
             LoginWindow loginForm = new LoginWindow();
+
             loginForm.Show();
 
             this.Close(); 

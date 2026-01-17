@@ -1,282 +1,154 @@
 ﻿<Window x:Class="PoliticsQuizApp.WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PoliticsQuizApp.WPF.Services"
-        mc:Ignorable="d"
-        Title="Admin Dashboard - Hệ thống Quản lý Thi" Height="700" Width="1100"
+        Title="Admin Dashboard - Hệ thống Quản lý Thi Trắc Nghiệm" Height="750" Width="1100"
         WindowStartupLocation="CenterScreen"
-        FontFamily="Segoe UI"
-        Background="#F3F4F6">
+        FontFamily="Segoe UI" Background="#F3F4F6">
 
     <Window.Resources>
-        <local:DifficultyConverter x:Key="DiffConverter"/>
-
-        <!-- Style cho Sidebar Button -->
-        <Style x:Key="SidebarButton" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#4B5563"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Padding" Value="15,0,0,0"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" Margin="0,2">
-                            <ContentPresenter VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#DBEAFE"/>
-                                <!-- Xanh nhạt khi hover -->
-                                <Setter Property="Foreground" Value="#2563EB"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Style cho Action Button (Thêm, Import) -->
-        <Style x:Key="ActionButton" TargetType="Button">
+        <Style x:Key="DashboardBtnStyle" TargetType="Button">
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#E5E7EB"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="#374151"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="15,8"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="10"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="12">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#F9FAFB"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="#D1D5DB"/>
+                                <Setter TargetName="bd" Property="Background" Value="#F0F9FF"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="#3B82F6"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <!-- Style cho DataGrid -->
-        <Style TargetType="DataGrid">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="RowHeaderWidth" Value="0"/>
-            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-            <Setter Property="HorizontalGridLinesBrush" Value="#E5E7EB"/>
-            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
-            <Setter Property="RowHeight" Value="40"/>
-            <Setter Property="HeadersVisibility" Value="Column"/>
-            <Setter Property="FontSize" Value="14"/>
-        </Style>
-
-        <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#F9FAFB"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="BorderBrush" Value="#E5E7EB"/>
-        </Style>
-
-        <Style TargetType="DataGridCell">
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="DataGridCell">
-                        <Border Padding="{TemplateBinding Padding}" Background="Transparent">
-                            <ContentPresenter VerticalAlignment="Center" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#EFF6FF"/>
-                    <Setter Property="Foreground" Value="#1F2937"/>
-                    <Setter Property="BorderThickness" Value="0"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220"/>
-            <!-- Sidebar -->
-            <ColumnDefinition Width="*"/>
-            <!-- Main Content -->
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <!-- === LEFT SIDEBAR === -->
-        <Border Grid.Column="0" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,0,1,0">
-            <Grid Margin="15,20,15,20">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <!-- Logo -->
-                    <RowDefinition Height="*"/>
-                    <!-- Menu -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- Logout -->
-                </Grid.RowDefinitions>
-
-                <!-- Branding -->
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,40">
-                    <Path Data="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" 
-                          Fill="#2563EB" Height="24" Width="24" Stretch="Uniform" Margin="0,0,10,0"/>
-                    <TextBlock Text="Quiz Admin" FontSize="20" FontWeight="Bold" Foreground="#111827" VerticalAlignment="Center"/>
+        <Border Grid.Row="0" Background="#2563EB" Padding="20">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🎓 DASHBOARD QUẢN TRỊ" FontSize="22" FontWeight="Bold" Foreground="White"/>
                 </StackPanel>
-
-                <!-- Menu Items -->
-                <StackPanel Grid.Row="1">
-                    <TextBlock Text="QUẢN TRỊ" FontSize="11" FontWeight="Bold" Foreground="#9CA3AF" Margin="10,0,0,10"/>
-
-                    <Button Style="{StaticResource SidebarButton}" Click="BtnUserMgmt_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" 
-                                  Fill="#6B7280" Width="16" Height="16" Stretch="Uniform" Margin="0,0,10,0"/>
-                            <TextBlock Text="QL Người dùng"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Button Style="{StaticResource SidebarButton}" Click="BtnExamManager_Click" ToolTip="Tạo đề thi mới">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.33 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.33 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" 
-                                  Fill="#6B7280" Width="16" Height="16" Stretch="Uniform" Margin="0,0,10,0"/>
-                            <TextBlock Text="Cấu hình Đề thi"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Button Style="{StaticResource SidebarButton}" Click="BtnReport_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z" 
-                                  Fill="#6B7280" Width="16" Height="16" Stretch="Uniform" Margin="0,0,10,0"/>
-                            <TextBlock Text="Xem Kết Quả"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-
-                <!-- Logout Button -->
-                <Button Grid.Row="2" Style="{StaticResource SidebarButton}" Click="BtnLogout_Click" Foreground="#DC2626">
-                    <StackPanel Orientation="Horizontal">
-                        <Path Data="M14.08,15.59L16.67,13H7V11H16.67L14.08,8.41L15.5,7L20.5,12L15.5,17L14.08,15.59M19,3A2,2 0 0,1 21,5V9.67L19,7.67V5H5V19H19V16.33L21,14.33V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H19Z" 
-                              Fill="#DC2626" Width="16" Height="16" Stretch="Uniform" Margin="0,0,10,0"/>
-                        <TextBlock Text="Đăng xuất" FontWeight="SemiBold"/>
-                    </StackPanel>
-                </Button>
+                <Button Click="BtnLogout_Click" HorizontalAlignment="Right" Content="Đăng xuất" 
+                        Background="Transparent" BorderThickness="0" Foreground="White" 
+                        FontWeight="SemiBold" Cursor="Hand"/>
             </Grid>
         </Border>
 
-        <!-- === RIGHT CONTENT === -->
-        <Grid Grid.Column="1" Margin="30,20">
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <!-- Top Bar -->
-                <RowDefinition Height="Auto"/>
-                <!-- Toolbar -->
-                <RowDefinition Height="*"/>
-                <!-- DataGrid -->
+                <RowDefinition Height="120"/>
+                <RowDefinition Height="120"/>
             </Grid.RowDefinitions>
 
-            <!-- 1. Top Bar -->
-            <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                <TextBlock Text="Ngân Hàng Câu Hỏi" FontSize="24" FontWeight="Bold" Foreground="#111827"/>
-                <TextBlock Text="Quản lý danh sách câu hỏi và đáp án" FontSize="14" Foreground="#6B7280" Margin="0,5,0,0"/>
-            </StackPanel>
-
-            <!-- 2. Action Toolbar -->
-            <Grid Grid.Row="1" Margin="0,0,0,15">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <!-- Nút Thêm Mới (Màu xanh nổi bật) -->
-                    <Button Click="BtnAdd_Click" Background="#2563EB" BorderThickness="0" Foreground="White" Padding="15,8" Cursor="Hand" Margin="0,0,10,0">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="6">
-                                    <StackPanel Orientation="Horizontal" Margin="15,8">
-                                        <Path Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Fill="White" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Thêm câu hỏi" FontWeight="Bold"/>
-                                    </StackPanel>
-                                </Border>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-
-                    <Button Click="BtnImportUI_Click" Style="{StaticResource ActionButton}" Margin="0,0,10,0">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M13,13V18H10V13H7L11.5,8.5L16,13H13M13,9V3.5L18.5,9H13Z" 
-                                  Fill="#374151" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0"/>
-                            <TextBlock Text="Import Excel"/>
-                        </StackPanel>
-                    </Button>
+            <Button Grid.Row="0" Grid.Column="0" Click="BtnOpenManager_Click" Style="{StaticResource DashboardBtnStyle}">
+                <StackPanel>
+                    <TextBlock Text="📂" FontSize="32" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Quản Lý Theo Chương" FontWeight="Bold" Foreground="#374151" Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Soạn câu hỏi, Thêm chương" FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
                 </StackPanel>
+            </Button>
 
-                <Button Click="BtnRefresh_Click" HorizontalAlignment="Right" Style="{StaticResource ActionButton}" ToolTip="Tải lại dữ liệu">
-                    <Path Data="M12,18A6,6 0 0,1 6,12C6,11 6.25,10.03 6.7,9.2L5.24,7.74C4.46,8.97 4,10.43 4,12A8,8 0 0,0 12,20V23L16,19L12,15V18M12,4V1L8,5L12,9V6A6,6 0 0,1 18,12C18,13 17.75,13.97 17.3,14.8L18.76,16.26C19.54,15.03 20,13.57 20,12A8,8 0 0,0 12,4Z" 
-                          Fill="#6B7280" Width="16" Height="16" Stretch="Uniform"/>
-                </Button>
-            </Grid>
+            <Button Grid.Row="0" Grid.Column="1" Click="BtnExamConfig_Click" Style="{StaticResource DashboardBtnStyle}">
+                <StackPanel>
+                    <TextBlock Text="📝" FontSize="32" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Cấu Hình Đề Thi" FontWeight="Bold" Foreground="#374151" Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Danh sách đề thi thủ công" FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
 
-            <!-- 3. DataGrid (Bảng dữ liệu) -->
-            <Border Grid.Row="2" Background="White" CornerRadius="8" BorderBrush="#E5E7EB" BorderThickness="1">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" Color="Black" Opacity="0.05" ShadowDepth="2"/>
-                </Border.Effect>
+            <Button Grid.Row="0" Grid.Column="2" Click="BtnCreateExam_Click" Style="{StaticResource DashboardBtnStyle}">
+                <StackPanel>
+                    <TextBlock Text="⚡" FontSize="32" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Tạo Đề Ma Trận" FontWeight="Bold" Foreground="#374151" Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Sinh đề ngẫu nhiên tự động" FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
 
-                <DataGrid x:Name="dgQuestions" Margin="2" AutoGenerateColumns="False" 
-                          IsReadOnly="True" CanUserAddRows="False">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="ID" Binding="{Binding QuestionID}" Width="60"/>
+            <Button Grid.Row="1" Grid.Column="0" Click="BtnImportExcel_Click" Style="{StaticResource DashboardBtnStyle}">
+                <StackPanel>
+                    <TextBlock Text="📊" FontSize="32" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Import Excel" FontWeight="Bold" Foreground="#374151" Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Nhập câu hỏi hàng loạt" FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
 
-                        <DataGridTextColumn Header="Nội dung câu hỏi" Binding="{Binding Content}" Width="*">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
+            <Button Grid.Row="1" Grid.Column="1" Click="BtnReport_Click" Style="{StaticResource DashboardBtnStyle}">
+                <StackPanel>
+                    <TextBlock Text="🏆" FontSize="32" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Xem Kết Quả Thi" FontWeight="Bold" Foreground="#374151" Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Báo cáo điểm số sinh viên" FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Row="1" Grid.Column="2" Click="BtnUserMgmt_Click" Style="{StaticResource DashboardBtnStyle}">
+                <StackPanel>
+                    <TextBlock Text="👥" FontSize="32" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Quản Lý Người Dùng" FontWeight="Bold" Foreground="#374151" Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Thêm/Sửa/Xóa Sinh viên" FontSize="12" Foreground="Gray" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <Border Grid.Row="2" Background="White" Margin="20,0,20,20" CornerRadius="8" BorderBrush="#E5E7EB" BorderThickness="1" Padding="15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="Kho Câu Hỏi (Tra Cứu Nhanh)" FontSize="16" FontWeight="Bold" Foreground="#374151" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="+ Thêm Lẻ" Click="BtnAddQuestion_Click" Padding="10,5" Background="#10B981" Foreground="White" FontWeight="Bold" BorderThickness="0">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4"/>
                                 </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
+                            </Button.Resources>
+                        </Button>
+                        <Button Content="Tải Lại" Click="BtnRefresh_Click" Padding="10,5" Margin="5,0,0,0" Background="White" BorderBrush="#D1D5DB" BorderThickness="1"/>
+                    </StackPanel>
+                </Grid>
 
-                        <DataGridTextColumn Header="Chủ đề" Binding="{Binding Topic.TopicName}" Width="200"/>
+                <DataGrid x:Name="dgQuestions" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True" 
+                          CanUserAddRows="False" Background="White" BorderBrush="#E5E7EB" BorderThickness="1" RowHeight="35">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding QuestionData.QuestionID}" Width="50"/>
+                        <DataGridTextColumn Header="Nội dung" Binding="{Binding QuestionData.Content}" Width="*"/>
+                        <DataGridTextColumn Header="Chương" Binding="{Binding QuestionData.Topic.TopicName}" Width="150"/>
 
-                        <DataGridTextColumn Header="Độ khó" Binding="{Binding Difficulty, Converter={StaticResource DiffConverter}}" Width="100"/>
-
-                        <!-- Cột Thao tác (Icons) -->
-                        <DataGridTemplateColumn Header="Thao tác" Width="100">
+                        <DataGridTemplateColumn Header="Tác vụ" Width="90">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                                        <!-- Edit Button (Pencil Icon) -->
-                                        <Button Click="BtnEditQuestion_Click" Tag="{Binding QuestionID}" 
-                                                Width="30" Height="30" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Sửa">
-                                            <Path Data="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z" 
-                                                  Fill="#F59E0B" Width="16" Height="16" Stretch="Uniform"/>
-                                        </Button>
-
-                                        <!-- Delete Button (Trash Icon) -->
-                                        <Button Click="BtnDeleteQuestion_Click" Tag="{Binding QuestionID}"
-                                                Width="30" Height="30" Margin="5,0,0,0" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Xóa">
-                                            <Path Data="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" 
-                                                  Fill="#EF4444" Width="16" Height="16" Stretch="Uniform"/>
-                                        </Button>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Click="BtnEditQuestion_Click" Tag="{Binding QuestionData.QuestionID}" Content="✏️" Background="Transparent" BorderThickness="0" Margin="0,0,5,0" Cursor="Hand"/>
+                                        <Button Click="BtnDeleteQuestion_Click" Tag="{Binding QuestionData.QuestionID}" Content="❌" Background="Transparent" BorderThickness="0" Cursor="Hand"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-            </Border>
-        </Grid>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

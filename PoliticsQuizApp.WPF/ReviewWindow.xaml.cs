@@ -74,7 +74,7 @@ namespace PoliticsQuizApp.WPF
                 }
 
                 // 2. Nếu đây là đáp án SV CHỌN
-                if (ans.AnswerId == qVM.UserSelectedAnswerId)
+                if (qVM.UserSelectedAnswerIds.Contains(ans.AnswerId))
                 {
                     // Nếu chọn ĐÚNG -> Đã tô xanh ở trên rồi -> Thêm icon
                     if (ans.IsCorrect)

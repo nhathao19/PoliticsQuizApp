@@ -33,27 +33,59 @@ namespace PoliticsQuizApp.WPF
         // Đường dẫn file tạm (Auto Save)
         private string _tempFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PoliticsQuiz_Temp.json");
 
-        // --- 2. CONSTRUCTOR CHUẨN (DUY NHẤT) ---
+        // --- 2. CONSTRUCTOR
         public ExamWindow(Exam exam, string studentName, int studentId)
         {
             InitializeComponent();
 
-            _currentExam = exam;
-            _studentName = studentName;
-            _studentId = studentId;       // Lưu ID sinh viên vào biến toàn cục
-            _currentExamId = exam.ExamId; // Lưu ID đề thi
-
+            // 1. KHỞI TẠO SERVICE NGAY LẬP TỨC
             _examService = new ExamService();
 
-            // Hiển thị thông tin lên giao diện
-            if (FindName("lblExamTitle") is TextBlock lblTitle) lblTitle.Text = _currentExam.Title;
-            if (FindName("lblStudentName") is TextBlock lblName) lblName.Text = $"Thí sinh: {_studentName}";
+            // 2. Validate dữ liệu đầu vào
+            if (exam == null)
+            {
+                MessageBox.Show("Lỗi: Dữ liệu đề thi bị Null.");
+                Close();
+                return;
+            }
 
-            StartExam();
-            // Đăng ký sự kiện: Khi cửa sổ mất tiêu điểm (Người dùng Alt+Tab ra ngoài)
-            this.Deactivated += ExamWindow_Deactivated;
-            // Đăng ký sự kiện: Chặn các phím tắt đơn giản (Esc)
-            this.KeyDown += ExamWindow_KeyDown;
+            _currentExam = exam;
+            _studentName = studentName;
+            _studentId = studentId;
+            _currentExamId = exam.ExamId; // Quan trọng: Lấy ID để truy vấn
+
+            // 3. Hiển thị thông tin cơ bản
+            if (lblExamTitle != null) lblExamTitle.Text = _currentExam.Title;
+            if (lblStudentName != null) lblStudentName.Text = _studentName;
+
+            // 4. LẤY CÂU HỎI TỪ BẢNG EXAMQUESTIONS (Đã sửa ở Bước 2)
+            try
+            {
+                var rawQuestions = _examService.GetQuestionsByExamId(_currentExamId);
+
+                if (rawQuestions == null || rawQuestions.Count == 0)
+                {
+                    MessageBox.Show($"Đề thi (ID: {_currentExamId}) chưa có câu hỏi nào trong hệ thống!\nVui lòng kiểm tra lại quá trình tạo đề.",
+                                    "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    Close();
+                    return;
+                }
+
+                // Convert sang ViewModel (theo code cũ của bạn)
+                _questions = rawQuestions.Select(q => new QuestionViewModel
+                {
+                    QuestionData = q,
+                    IsSelectedInManager = false
+                }).ToList();
+
+                // 5. Bắt đầu thi (Logic cũ giữ nguyên)
+                StartExam();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải câu hỏi: " + ex.Message);
+                Close();
+            }
         }
 
         // --- 3. LOGIC BẮT ĐẦU ---
@@ -63,9 +95,8 @@ namespace PoliticsQuizApp.WPF
 
             _startTime = DateTime.Now;
 
-            // Lấy câu hỏi từ Service
-            _questions = _examService.GenerateExamQuestions(_currentExamId, 0); // Tham số thứ 2 là limit, service mới tự tính nên để 0 hoặc bỏ nếu đã sửa service
 
+            // Kiểm tra lại danh sách đã lấy từ Constructor
             if (_questions == null || _questions.Count == 0)
             {
                 MessageBox.Show("Đề thi này chưa có câu hỏi nào! Vui lòng liên hệ Giám thị.");
@@ -73,7 +104,7 @@ namespace PoliticsQuizApp.WPF
                 return;
             }
 
-            // Gán dữ liệu vào giao diện
+            // Gán dữ liệu vào giao diện (Giữ nguyên các dòng tiếp theo của bạn)
             icNavigator.ItemsSource = null;
             icNavigator.Items.Clear();
             icNavigator.ItemsSource = _questions;
@@ -92,7 +123,6 @@ namespace PoliticsQuizApp.WPF
             // Phục hồi bài cũ nếu có sự cố
             TryRecoverExam();
         }
-
         // --- 4. ĐỒNG HỒ & AUTO SAVE ---
         private void Timer_Tick(object sender, EventArgs e)
         {
@@ -114,7 +144,6 @@ namespace PoliticsQuizApp.WPF
                 FinishExam();
             }
         }
-
         private void AutoSaveProgress()
         {
             if (_questions == null) return;
@@ -128,7 +157,7 @@ namespace PoliticsQuizApp.WPF
                     Answers = _questions.Select(q => new StudentAnswerTemp
                     {
                         QuestionId = q.QuestionData.QuestionID,
-                        SelectedAnswerId = q.UserSelectedAnswerId,
+                        SelectedAnswerIds = q.UserSelectedAnswerIds,
                         IsFlagged = q.IsFlagged
                     }).ToList()
                 };
@@ -162,7 +191,7 @@ namespace PoliticsQuizApp.WPF
                             var q = _questions.FirstOrDefault(x => x.QuestionData.QuestionID == savedAns.QuestionId);
                             if (q != null)
                             {
-                                q.UserSelectedAnswerId = savedAns.SelectedAnswerId;
+                                q.UserSelectedAnswerIds = savedAns.SelectedAnswerIds ?? new List<long>();
                                 q.IsFlagged = savedAns.IsFlagged;
                             }
                         }
@@ -192,29 +221,86 @@ namespace PoliticsQuizApp.WPF
 
             // Vẽ đáp án
             pnlAnswers.Children.Clear();
+
+            // Hiện thông báo nhỏ nếu là câu nhiều đáp án
+            if (qVM.IsMultipleChoice)
+            {
+                TextBlock hint = new TextBlock
+                {
+                    Text = "(Câu hỏi chọn nhiều đáp án)",
+                    Foreground = System.Windows.Media.Brushes.Gray,
+                    FontStyle = FontStyles.Italic,
+                    Margin = new Thickness(0, 0, 0, 10)
+                };
+                pnlAnswers.Children.Add(hint);
+            }
             foreach (var ans in qVM.Answers)
             {
-                RadioButton rb = new RadioButton();
-                if (Application.Current.Resources.Contains("AnswerCardStyle"))
-                    rb.Style = (Style)Application.Current.Resources["AnswerCardStyle"];
+                // TẠO CONTROL TÙY THUỘC VÀO LOẠI CÂU HỎI
+                Control answerControl;
 
-                rb.Content = new TextBlock { Text = ans.Content, TextWrapping = TextWrapping.Wrap, FontSize = 16 };
-                rb.Margin = new Thickness(0, 5, 0, 10);
-                rb.Tag = ans.AnswerId;
-
-                // Sự kiện chọn đáp án
-                rb.Checked += (s, e) =>
+                if (qVM.IsMultipleChoice)
                 {
-                    if (rb.IsChecked == true)
-                    {
-                        qVM.UserSelectedAnswerId = (long)((RadioButton)s).Tag;
-                        UpdateProgress();
-                    }
-                };
+                    // 1. Dùng CHECKBOX (Hình vuông)
+                    CheckBox cb = new CheckBox();
+                    cb.Content = new TextBlock { Text = ans.Content, TextWrapping = TextWrapping.Wrap, FontSize = 16 };
+                    cb.Margin = new Thickness(0, 5, 0, 10);
+                    cb.Tag = ans.AnswerId;
 
-                if (qVM.UserSelectedAnswerId == ans.AnswerId) rb.IsChecked = true;
-                pnlAnswers.Children.Add(rb);
+                    // Sự kiện Click
+                    cb.Checked += (s, e) => ToggleAnswer(qVM, (long)((CheckBox)s).Tag, true);
+                    cb.Unchecked += (s, e) => ToggleAnswer(qVM, (long)((CheckBox)s).Tag, false);
+
+                    // Load trạng thái cũ
+                    if (qVM.UserSelectedAnswerIds.Contains(ans.AnswerId)) cb.IsChecked = true;
+
+                    answerControl = cb;
+                }
+                else
+                {
+                    // 2. Dùng RADIOBUTTON (Hình tròn)
+                    RadioButton rb = new RadioButton();
+                    rb.Content = new TextBlock { Text = ans.Content, TextWrapping = TextWrapping.Wrap, FontSize = 16 };
+                    rb.Margin = new Thickness(0, 5, 0, 10);
+                    rb.Tag = ans.AnswerId;
+
+                    // Sự kiện Click
+                    rb.Checked += (s, e) => {
+                        // Radio chỉ chọn 1 -> Xóa hết cái cũ, thêm cái mới
+                        qVM.UserSelectedAnswerIds.Clear();
+                        qVM.UserSelectedAnswerIds.Add((long)((RadioButton)s).Tag);
+                        UpdateProgress();
+                    };
+
+                    // Load trạng thái cũ
+                    if (qVM.UserSelectedAnswerIds.Contains(ans.AnswerId)) rb.IsChecked = true;
+
+                    answerControl = rb;
+                }
+
+                pnlAnswers.Children.Add(answerControl);
             }
+        }
+        // Hàm phụ để thêm/bớt đáp án vào list
+        private void ToggleAnswer(QuestionViewModel qVM, long ansId, bool isChecked)
+        {
+            if (isChecked)
+            {
+                if (!qVM.UserSelectedAnswerIds.Contains(ansId))
+                    qVM.UserSelectedAnswerIds.Add(ansId);
+            }
+            else
+            {
+                if (qVM.UserSelectedAnswerIds.Contains(ansId))
+                    qVM.UserSelectedAnswerIds.Remove(ansId);
+            }
+
+            // Cập nhật giao diện (cần gọi PropertyChanged cho UserSelectedAnswerIds nhưng List ko tự báo)
+            // Ta gọi UpdateProgress để cập nhật thanh tiến độ
+            UpdateProgress();
+
+            // Ép cập nhật màu sắc Navigator
+            qVM.UserSelectedAnswerIds = new List<long>(qVM.UserSelectedAnswerIds);
         }
 
         private void UpdateProgress()
@@ -265,39 +351,63 @@ namespace PoliticsQuizApp.WPF
 
         private void FinishExam()
         {
+            // Dừng đồng hồ
             if (_timer != null) _timer.Stop();
-            _isSubmitted = true;
 
-            // Tính điểm
+            // 1. TÍNH ĐIỂM (LOGIC MỚI CHO MULTIPLE CHOICE)
+            double score = 0;
             int correctCount = 0;
-            foreach (var q in _questions)
+            
+            // Tránh chia cho 0 nếu đề không có câu nào
+            if (_questions.Count > 0)
             {
-                var selected = q.Answers.FirstOrDefault(a => a.AnswerId == q.UserSelectedAnswerId);
-                if (selected != null && selected.IsCorrect) correctCount++;
+                double scorePerQuestion = 10.0 / _questions.Count;
+
+                foreach (var q in _questions)
+                {
+                    // Lấy danh sách ID các đáp án ĐÚNG trong Database
+                    var correctIds = q.Answers.Where(a => a.IsCorrect)
+                                              .Select(a => a.AnswerId)
+                                              .ToList();
+
+                    // Lấy danh sách ID sinh viên ĐÃ CHỌN
+                    // (Đây là chỗ gây lỗi cũ nếu dùng q.UserSelectedAnswerId)
+                    var userIds = q.UserSelectedAnswerIds; 
+
+                    // SO SÁNH:
+                    // Sinh viên phải chọn ĐỦ số lượng và ĐÚNG các ID
+                    if (correctIds.Count == userIds.Count && !correctIds.Except(userIds).Any())
+                    {
+                        correctCount++;
+                        score += scorePerQuestion;
+                    }
+                }
             }
 
-            double finalScore = (double)correctCount / _questions.Count * 10;
+            // Làm tròn điểm số (2 chữ số thập phân)
+            score = Math.Round(score, 2);
 
-            // QUAN TRỌNG: Lưu kết quả với ID thật (_studentId) thay vì hardcode số 1
-            bool isSaved = _examService.SubmitExam(_studentId, _currentExamId, finalScore, _startTime, _questions);
+            // 2. GỬI KẾT QUẢ XUỐNG DATABASE
+            bool success = _examService.SubmitExam(_studentId, _currentExam.ExamId, score, _startTime, _questions);
 
-            // Vô hiệu hóa giao diện
-            gridQuestionContent.IsEnabled = false;
-            icNavigator.IsEnabled = false;
-
-            // Xóa file tạm
-            if (File.Exists(_tempFilePath)) File.Delete(_tempFilePath);
-
-            if (isSaved)
+            if (success)
             {
-                MessageBox.Show($"Kết quả: {finalScore:F2} điểm\nSố câu đúng: {correctCount}/{_questions.Count}", "Hoàn thành");
+                // Xóa file lưu tạm (nếu có)
+                if (System.IO.File.Exists(_tempFilePath))
+                {
+                    try { System.IO.File.Delete(_tempFilePath); } catch { }
+                }
+
+                MessageBox.Show($"Nộp bài thành công!\n\nSố câu đúng: {correctCount}/{_questions.Count}\nĐiểm số: {score}", 
+                                "Kết quả", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                this.Close(); // Đóng cửa sổ thi
             }
             else
             {
-                MessageBox.Show("Lỗi khi lưu kết quả vào CSDL!", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Lỗi kết nối CSDL! Kết quả chưa được lưu.\nVui lòng báo giám thị ngay lập tức.", 
+                                "Lỗi Nghiêm Trọng", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            this.Close();
         }
 
 
@@ -351,7 +461,7 @@ namespace PoliticsQuizApp.WPF
         public class StudentAnswerTemp
         {
             public long QuestionId { get; set; }
-            public long? SelectedAnswerId { get; set; }
+            public List<long> SelectedAnswerIds { get; set; }
             public bool IsFlagged { get; set; }
         }
     }

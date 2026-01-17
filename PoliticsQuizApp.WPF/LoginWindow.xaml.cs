@@ -11,8 +11,6 @@ namespace PoliticsQuizApp.WPF
         {
             InitializeComponent();
             _authService = new AuthService();
-
-            // Tự động tạo admin/123456 nếu chưa có
             _authService.CreateDefaultAdmin();
         }
 
@@ -27,18 +25,16 @@ namespace PoliticsQuizApp.WPF
                 return;
             }
 
-            // Gọi Service kiểm tra
             var user = _authService.Login(username, password);
 
             if (user != null)
             {
                 if (user.IsActive == true)
                 {
-                    // Mở Dashboard
+                    // QUAN TRỌNG: Vào MainWindow (Dashboard) chứ không vào thẳng Manager
                     MainWindow dashboard = new MainWindow();
                     dashboard.Show();
-
-                    this.Close(); // Đóng cửa sổ login
+                    this.Close();
                 }
                 else
                 {

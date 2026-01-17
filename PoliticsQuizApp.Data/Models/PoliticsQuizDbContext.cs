@@ -14,6 +14,7 @@ namespace PoliticsQuizApp.Data
         public virtual DbSet<Answer> Answers { get; set; }
         public virtual DbSet<Exam> Exams { get; set; }
         public virtual DbSet<Question> Questions { get; set; }
+        public virtual DbSet<ExamQuestion> ExamQuestions { get; set; }
         public virtual DbSet<StudentAnswer> StudentAnswers { get; set; }
         public virtual DbSet<Subject> Subjects { get; set; }
         public virtual DbSet<TestSession> TestSessions { get; set; }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 namespace PoliticsQuizApp.WPF.ViewModels
 {
@@ -10,6 +11,7 @@ namespace PoliticsQuizApp.WPF.ViewModels
         public Question QuestionData { get; set; }
         public int Index { get; set; }
         public List<Answer> Answers { get; set; }
+        public bool IsMultipleChoice => Answers != null && Answers.Count(a => a.IsCorrect) > 1;
 
         private bool _isFlagged;
         public bool IsFlagged
@@ -24,8 +26,9 @@ namespace PoliticsQuizApp.WPF.ViewModels
             get => _isSelected;
             set { _isSelected = value; OnPropertyChanged(); }
         }
-
-        private long? _userSelectedAnswerId;
+     
+        /**
+        private long? _userSelectedAnswerId; --Biến lưu 1 đáp án
         public long? UserSelectedAnswerId
         {
             get => _userSelectedAnswerId;
@@ -36,8 +39,18 @@ namespace PoliticsQuizApp.WPF.ViewModels
                 OnPropertyChanged(nameof(IsAnswered)); // Cập nhật trạng thái IsAnswered
             }
         }
-
-        // --- KHẮC PHỤC LỖI CS0200 TẠI ĐÂY ---
+        **/
+        private List<long> _userSelectedAnswerIds = new List<long>(); //Nhiều đáp án
+        public List<long> UserSelectedAnswerIds
+        {
+            get => _userSelectedAnswerIds;
+            set
+            {
+                _userSelectedAnswerIds = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsAnswered));
+            }
+        }
 
         // Biến này dùng để "ép" trạng thái (Dùng cho chế độ Xem lại bài thi)
         private bool? _forceAnsweredStatus;
@@ -51,7 +64,7 @@ namespace PoliticsQuizApp.WPF.ViewModels
                     return _forceAnsweredStatus.Value;
 
                 // 2. Mặc định: Chế độ làm bài thi -> Tự động tính dựa trên việc đã chọn đáp án chưa
-                return UserSelectedAnswerId.HasValue;
+                return UserSelectedAnswerIds != null && UserSelectedAnswerIds.Count > 0;
             }
             set
             {
@@ -68,6 +81,13 @@ namespace PoliticsQuizApp.WPF.ViewModels
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private bool _isSelectedInManager;
+        public bool IsSelectedInManager
+        {
+            get => _isSelectedInManager;
+            set { _isSelectedInManager = value; OnPropertyChanged(); }
         }
     }
 }

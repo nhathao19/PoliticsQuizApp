@@ -1,4 +1,6 @@
-﻿using PoliticsQuizApp.WPF.Services;
+﻿using PoliticsQuizApp.Data;
+using PoliticsQuizApp.Data.Models;
+using PoliticsQuizApp.WPF.Services;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -26,7 +28,7 @@ namespace PoliticsQuizApp.WPF
         }
         private void BtnAddExam_Click(object sender, RoutedEventArgs e)
         {
-            // Validate cơ bản
+            // 1. Kiểm tra đầu vào
             if (string.IsNullOrWhiteSpace(txtExamCode.Text) || string.IsNullOrWhiteSpace(txtTitle.Text))
             {
                 MessageBox.Show("Vui lòng nhập Mã và Tiêu đề!");
@@ -37,29 +39,47 @@ namespace PoliticsQuizApp.WPF
             int easy = int.Parse(txtEasy.Text);
             int med = int.Parse(txtMedium.Text);
             int hard = int.Parse(txtHard.Text);
+            int topicId = (int)cboTopics.SelectedValue;
+            int totalRequest = easy + med + hard;
 
-            if (easy + med + hard == 0)
+            using (var context = new PoliticsQuizDbContext())
             {
-                MessageBox.Show("Phải có ít nhất 1 câu hỏi!");
-                return;
-            }
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        // A. Lưu thông tin đề thi
+                        var exam = new Exam
+                        {
+                            ExamCode = txtExamCode.Text,
+                            Title = txtTitle.Text,
+                            DurationMinutes = duration,
+                            TotalQuestions = totalRequest,
+                            IsActive = true,
+                            // Lưu thông tin cấu hình vào đây để hiển thị sau này
+                            ConfigMatrix = $"Dễ: {easy} | TB: {med} | Khó: {hard}"
+                        };
+                        context.Exams.Add(exam);
+                        context.SaveChanges();
 
-            int? topicId = null;
-            if (cboTopics.SelectedValue != null)
-                topicId = (int)cboTopics.SelectedValue;
+                        // B. Nhặt câu hỏi và LƯU VÀO BẢNG TRUNG GIAN (Sửa lỗi Rỗng)
+                        var questions = new List<Question>();
+                        if (easy > 0) questions.AddRange(context.Questions.Where(q => q.TopicId == topicId && q.Difficulty == 1).OrderBy(x => Guid.NewGuid()).Take(easy));
+                        if (med > 0) questions.AddRange(context.Questions.Where(q => q.TopicId == topicId && q.Difficulty == 2).OrderBy(x => Guid.NewGuid()).Take(med));
+                        if (hard > 0) questions.AddRange(context.Questions.Where(q => q.TopicId == topicId && q.Difficulty == 3).OrderBy(x => Guid.NewGuid()).Take(hard));
 
-            // Gọi hàm AddExam mới đã update
-            bool result = _examService.AddExam(txtExamCode.Text, txtTitle.Text, topicId, duration, easy, med, hard);
+                        foreach (var q in questions)
+                        {
+                            context.ExamQuestions.Add(new ExamQuestion { ExamId = exam.ExamId, QuestionId = q.QuestionID });
+                        }
 
-            if (result)
-            {
-                MessageBox.Show("Tạo đề thành công!");
-                LoadData();
-                txtExamCode.Clear(); txtTitle.Clear();
-            }
-            else
-            {
-                MessageBox.Show("Lỗi! Mã đề trùng hoặc lỗi kết nối.");
+                        context.SaveChanges();
+                        transaction.Commit();
+                        MessageBox.Show("Tạo đề thành công!");
+                        LoadData();
+                    }
+                    catch (Exception ex) { transaction.Rollback(); MessageBox.Show("Lỗi: " + ex.Message); }
+                }
             }
         }
         private void BtnToggleStatus_Click(object sender, RoutedEventArgs e)
