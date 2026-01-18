@@ -53,7 +53,28 @@ namespace PoliticsQuizApp.WPF
                 {
                     try
                     {
-                        // 1. Tạo Đề Thi (Exam)
+                        // Bước 1: Random câu hỏi trước để biết chính xác số lượng Dễ/TB/Khó
+                        var allSelectedQuestions = new List<Question>(); // List chứa toàn bộ câu hỏi được chọn
+
+                        foreach (var t in _topics)
+                        {
+                            if (t.CountToSelect > 0)
+                            {
+                                var randomQ = context.Questions
+                                                        .Where(q => q.TopicId == t.TopicId)
+                                                        .OrderBy(x => Guid.NewGuid())
+                                                        .Take(t.CountToSelect)
+                                                        .ToList();
+                                allSelectedQuestions.AddRange(randomQ);
+                            }
+                        }
+
+                        // Bước 2: Tính toán thống kê từ danh sách đã chọn
+                        int easyCount = allSelectedQuestions.Count(q => q.Difficulty == 1);
+                        int mediumCount = allSelectedQuestions.Count(q => q.Difficulty == 2);
+                        int hardCount = allSelectedQuestions.Count(q => q.Difficulty == 3);
+
+                        // Bước 3: Tạo đối tượng Exam và gán thống kê
                         var exam = new Exam
                         {
                             ExamCode = txtExamCode.Text,
@@ -61,37 +82,29 @@ namespace PoliticsQuizApp.WPF
                             DurationMinutes = int.Parse(txtDuration.Text),
                             TotalQuestions = total,
                             IsActive = true,
+
+                            // --- CẬP NHẬT CÁC TRƯỜNG CÒN THIẾU ---
+                            EasyCount = easyCount,
+                            MediumCount = mediumCount,
+                            HardCount = hardCount,
+                            // --------------------------------------
+
                             ConfigMatrix = $"Auto: {DateTime.Now}"
                         };
                         context.Exams.Add(exam);
-                        context.SaveChanges(); // Lưu để lấy ExamId
+                        context.SaveChanges();
 
-                        // 2. Random câu hỏi và LƯU VÀO EXAMQUESTIONS
+                        // Bước 4: Lưu vào bảng trung gian (ExamQuestions)
                         var examQuestionsList = new List<ExamQuestion>();
-
-                        foreach (var t in _topics)
+                        foreach (var q in allSelectedQuestions)
                         {
-                            if (t.CountToSelect > 0)
+                            examQuestionsList.Add(new ExamQuestion
                             {
-                                var randomQ = context.Questions
-                                                     .Where(q => q.TopicId == t.TopicId)
-                                                     .OrderBy(x => Guid.NewGuid()) // Random
-                                                     .Take(t.CountToSelect)
-                                                     .ToList();
-
-                                foreach (var q in randomQ)
-                                {
-                                    // Tạo liên kết trong bảng trung gian
-                                    examQuestionsList.Add(new ExamQuestion
-                                    {
-                                        ExamId = exam.ExamId,
-                                        QuestionId = q.QuestionID
-                                    });
-                                }
-                            }
+                                ExamId = exam.ExamId,
+                                QuestionId = q.QuestionID
+                            });
                         }
 
-                        // Lưu danh sách liên kết vào DB
                         context.ExamQuestions.AddRange(examQuestionsList);
                         context.SaveChanges();
 

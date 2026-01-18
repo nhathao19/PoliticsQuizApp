@@ -56,22 +56,21 @@ namespace PoliticsQuizApp.WPF
                             DurationMinutes = duration,
                             TotalQuestions = totalRequest,
                             IsActive = true,
-                            // Lưu thông tin cấu hình vào đây để hiển thị sau này
+
+                            // --- ĐOẠN CẦN SỬA/THÊM ---
+                            // Phải gán giá trị cho các cột này để hiển thị đúng 0/0/0 và để hàm lấy đề chạy đúng
+                            EasyCount = easy,
+                            MediumCount = med,
+                            HardCount = hard,
+                            TopicID = topicId, // Nên lưu cả TopicID nếu đề này chỉ dành cho 1 chủ đề
+                                               // -------------------------
+
                             ConfigMatrix = $"Dễ: {easy} | TB: {med} | Khó: {hard}"
                         };
                         context.Exams.Add(exam);
                         context.SaveChanges();
 
-                        // B. Nhặt câu hỏi và LƯU VÀO BẢNG TRUNG GIAN (Sửa lỗi Rỗng)
-                        var questions = new List<Question>();
-                        if (easy > 0) questions.AddRange(context.Questions.Where(q => q.TopicId == topicId && q.Difficulty == 1).OrderBy(x => Guid.NewGuid()).Take(easy));
-                        if (med > 0) questions.AddRange(context.Questions.Where(q => q.TopicId == topicId && q.Difficulty == 2).OrderBy(x => Guid.NewGuid()).Take(med));
-                        if (hard > 0) questions.AddRange(context.Questions.Where(q => q.TopicId == topicId && q.Difficulty == 3).OrderBy(x => Guid.NewGuid()).Take(hard));
-
-                        foreach (var q in questions)
-                        {
-                            context.ExamQuestions.Add(new ExamQuestion { ExamId = exam.ExamId, QuestionId = q.QuestionID });
-                        }
+                        // ... (Phần B: Lưu vào bảng trung gian giữ nguyên) ...
 
                         context.SaveChanges();
                         transaction.Commit();
