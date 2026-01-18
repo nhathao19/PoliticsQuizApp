@@ -69,8 +69,39 @@ namespace PoliticsQuizApp.WPF
                         };
                         context.Exams.Add(exam);
                         context.SaveChanges();
+                        // B. Nhặt câu hỏi và LƯU VÀO BẢNG TRUNG GIAN
+                        var questions = new List<Question>();
 
-                        // ... (Phần B: Lưu vào bảng trung gian giữ nguyên) ...
+                        // Lấy câu dễ
+                        if (easy > 0)
+                            questions.AddRange(context.Questions
+                                .Where(q => q.TopicId == topicId && q.Difficulty == 1)
+                                .OrderBy(x => Guid.NewGuid())
+                                .Take(easy));
+
+                        // Lấy câu trung bình
+                        if (med > 0)
+                            questions.AddRange(context.Questions
+                                .Where(q => q.TopicId == topicId && q.Difficulty == 2)
+                                .OrderBy(x => Guid.NewGuid())
+                                .Take(med));
+
+                        // Lấy câu khó
+                        if (hard > 0)
+                            questions.AddRange(context.Questions
+                                .Where(q => q.TopicId == topicId && q.Difficulty == 3)
+                                .OrderBy(x => Guid.NewGuid())
+                                .Take(hard));
+
+                        // Lưu vào bảng ExamQuestions (Để chốt cứng đề thi này)
+                        foreach (var q in questions)
+                        {
+                            context.ExamQuestions.Add(new ExamQuestion
+                            {
+                                ExamId = exam.ExamId,
+                                QuestionId = q.QuestionID
+                            });
+                        }
 
                         context.SaveChanges();
                         transaction.Commit();

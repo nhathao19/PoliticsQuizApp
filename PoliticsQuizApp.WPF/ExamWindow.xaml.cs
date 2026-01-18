@@ -38,7 +38,7 @@ namespace PoliticsQuizApp.WPF
         {
             InitializeComponent();
 
-            // 1. KHỞI TẠO SERVICE NGAY LẬP TỨC
+            // 1. KHỞI TẠO SERVICE
             _examService = new ExamService();
 
             // 2. Validate dữ liệu đầu vào
@@ -52,33 +52,40 @@ namespace PoliticsQuizApp.WPF
             _currentExam = exam;
             _studentName = studentName;
             _studentId = studentId;
-            _currentExamId = exam.ExamId; // Quan trọng: Lấy ID để truy vấn
+            _currentExamId = exam.ExamId;
 
             // 3. Hiển thị thông tin cơ bản
             if (lblExamTitle != null) lblExamTitle.Text = _currentExam.Title;
             if (lblStudentName != null) lblStudentName.Text = _studentName;
 
-            // 4. LẤY CÂU HỎI TỪ BẢNG EXAMQUESTIONS (Đã sửa ở Bước 2)
+            // 4. LẤY CÂU HỎI VÀ XỬ LÝ (SỬA LỖI TẠI ĐÂY)
             try
             {
                 var rawQuestions = _examService.GetQuestionsByExamId(_currentExamId);
 
                 if (rawQuestions == null || rawQuestions.Count == 0)
                 {
-                    MessageBox.Show($"Đề thi (ID: {_currentExamId}) chưa có câu hỏi nào trong hệ thống!\nVui lòng kiểm tra lại quá trình tạo đề.",
-                                    "Cảnh báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show($"Đề thi (ID: {_currentExamId}) chưa có câu hỏi nào!", "Cảnh báo");
                     Close();
                     return;
                 }
 
-                // Convert sang ViewModel (theo code cũ của bạn)
-                _questions = rawQuestions.Select(q => new QuestionViewModel
+                // --- ĐOẠN CODE SỬA LỖI HIỂN THỊ CÂU 0 ---
+                // Sử dụng .Select((q, index) => ...) để lấy số thứ tự
+                _questions = rawQuestions.Select((q, index) => new QuestionViewModel
                 {
+                    Index = index + 1, // <--- QUAN TRỌNG: Gán số thứ tự câu hỏi (1, 2, 3...)
                     QuestionData = q,
-                    IsSelectedInManager = false
-                }).ToList();
+                    IsSelectedInManager = false,
 
-                // 5. Bắt đầu thi (Logic cũ giữ nguyên)
+                    // Fix lỗi NullReference (Crash)
+                    Answers = q.Answers != null ? q.Answers.ToList() : new List<Answer>(),
+
+                    // Khôi phục đáp án đã chọn (nếu có logic resume)
+                    UserSelectedAnswerIds = new List<long>()
+                }).ToList();
+                // ----------------------------------------
+
                 StartExam();
             }
             catch (Exception ex)
@@ -218,6 +225,13 @@ namespace PoliticsQuizApp.WPF
             // Binding dữ liệu
             gridQuestionContent.DataContext = qVM;
             if (FindName("chkFlag") is CheckBox chk) chk.DataContext = qVM;
+            if (FindName("lblTopicName") is TextBlock lblTopic)
+            {
+                if (qVM.QuestionData.Topic != null)
+                    lblTopic.Text = "Chủ đề: " + qVM.QuestionData.Topic.TopicName;
+                else
+                    lblTopic.Text = ""; // Hoặc "Chủ đề chung"
+            }
 
             // Vẽ đáp án
             pnlAnswers.Children.Clear();
@@ -392,6 +406,7 @@ namespace PoliticsQuizApp.WPF
 
             if (success)
             {
+                _isSubmitted = true;
                 // Xóa file lưu tạm (nếu có)
                 if (System.IO.File.Exists(_tempFilePath))
                 {

@@ -259,8 +259,8 @@
                     <ProgressBar x:Name="prgBar" Height="8" Minimum="0" Maximum="10" Value="0" BorderThickness="0">
                         <ProgressBar.Foreground>
                             <LinearGradientBrush EndPoint="1,0" StartPoint="0,0">
-                                <GradientStop Color="#3B82F6" Offset="0"/>
-                                <GradientStop Color="#2563EB" Offset="1"/>
+                                <GradientStop Color="#A8DF8E" Offset="0"/>
+                                <GradientStop Color="#75B06F" Offset="1"/>
                             </LinearGradientBrush>
                         </ProgressBar.Foreground>
                         <ProgressBar.Background>

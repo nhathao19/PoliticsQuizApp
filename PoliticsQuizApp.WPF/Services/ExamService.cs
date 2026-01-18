@@ -116,11 +116,12 @@ namespace PoliticsQuizApp.WPF.Services
         {
             using (var context = new PoliticsQuizDbContext())
             {
-                // Logic: Vào bảng ExamQuestions -> Lấy Question -> Lấy luôn Answers
                 var questions = context.ExamQuestions
                                        .Where(eq => eq.ExamId == examId)
                                        .Include(eq => eq.Question)
                                           .ThenInclude(q => q.Answers)
+                                       .Include(eq => eq.Question)
+                                          .ThenInclude(q => q.Topic)
                                        .Select(eq => eq.Question)
                                        .ToList();
                 return questions;
@@ -167,96 +168,9 @@ namespace PoliticsQuizApp.WPF.Services
                         .Where(q => q.Difficulty == 1 && (exam.TopicID == null || q.TopicId == exam.TopicID))
                         .OrderBy(x => Guid.NewGuid())
                         .Take(eCount)
-                        .Include(q => q.Answers).ToList();
-                    finalQuestions.AddRange(qs);
-                }
-
-                // -- Lấy câu TRUNG BÌNH --
-                if (mCount > 0)
-                {
-                    var qs = _context.Questions
-                        .Where(q => q.Difficulty == 2 && (exam.TopicID == null || q.TopicId == exam.TopicID))
-                        .OrderBy(x => Guid.NewGuid())
-                        .Take(mCount)
-                        .Include(q => q.Answers).ToList();
-                    finalQuestions.AddRange(qs);
-                }
-
-                // -- Lấy câu KHÓ --
-                if (hCount > 0)
-                {
-                    var qs = _context.Questions
-                        .Where(q => q.Difficulty == 3 && (exam.TopicID == null || q.TopicId == exam.TopicID))
-                        .OrderBy(x => Guid.NewGuid())
-                        .Take(hCount)
-                        .Include(q => q.Answers).ToList();
-                    finalQuestions.AddRange(qs);
-                }
-            }
-
-            // ==========================================================
-            // BƯỚC 3: CHUYỂN ĐỔI SANG VIEWMODEL ĐỂ HIỂN THỊ
-            // ==========================================================
-            var viewModels = new List<QuestionViewModel>();
-            int index = 1;
-
-            // Trộn ngẫu nhiên vị trí câu hỏi một lần nữa trước khi hiện
-            finalQuestions = finalQuestions.OrderBy(x => Guid.NewGuid()).ToList();
-
-            foreach (var q in finalQuestions)
-            {
-                // Đảm bảo Answers không bị null
-                var finalAnswers = q.Answers != null ? q.Answers.ToList() : new List<Answer>();
-
-                // Xáo trộn đáp án
-                finalAnswers = finalAnswers.OrderBy(a => Guid.NewGuid()).ToList();
-
-                viewModels.Add(new QuestionViewModel
-                {
-                    QuestionData = q,
-                    Index = index++,
-                    Answers = finalAnswers
-                });
-            }
-            return viewModels;
-        }
-        public List<QuestionViewModel> GenerateExamQuestions(int examId, int v)
-        {
-            // 1. Lấy thông tin đề thi
-            var exam = _context.Exams.Find(examId);
-            if (exam == null) return new List<QuestionViewModel>();
-
-            List<Question> finalQuestions = new List<Question>();
-
-            // ==========================================================
-            // BƯỚC 1: KIỂM TRA XEM ĐỀ CÓ CÂU HỎI CỐ ĐỊNH KHÔNG? (Ưu tiên)
-            // ==========================================================
-            // Logic này hỗ trợ Đề Thủ Công (Manual) - Lấy đúng những câu đã chọn
-            var fixedQuestions = GetQuestionsByExamId(examId);
-
-            if (fixedQuestions != null && fixedQuestions.Count > 0)
-            {
-                finalQuestions = fixedQuestions;
-            }
-            else
-            {
-                // ==========================================================
-                // BƯỚC 2: NẾU KHÔNG CÓ CÂU CỐ ĐỊNH -> RANDOM (Auto)
-                // ==========================================================
-
-                // Dùng (exam.EasyCount ?? 0) để tránh lỗi crash nếu giá trị là null
-                int eCount = exam.EasyCount ?? 0;
-                int mCount = exam.MediumCount ?? 0;
-                int hCount = exam.HardCount ?? 0;
-
-                // -- Lấy câu DỄ --
-                if (eCount > 0)
-                {
-                    var qs = _context.Questions
-                        .Where(q => q.Difficulty == 1 && (exam.TopicID == null || q.TopicId == exam.TopicID))
-                        .OrderBy(x => Guid.NewGuid())
-                        .Take(eCount)
-                        .Include(q => q.Answers).ToList();
+                        .Include(q => q.Answers)
+                        .Include(q => q.Topic) 
+                        .ToList();
                     finalQuestions.AddRange(qs);
                 }
 
