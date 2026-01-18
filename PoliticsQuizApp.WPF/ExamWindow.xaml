@@ -139,7 +139,7 @@
              Background="Transparent" 
              BorderThickness="0" 
              IsDocumentEnabled="True"
-             local:RichTextHelper.FormattedText="{Binding Content}">
+             local:RichTextHelper.FormattedText="{Binding QuestionData.Content}">
                             <RichTextBox.Resources>
                                 <Style TargetType="{x:Type Paragraph}">
                                     <Setter Property="Margin" Value="0"/>

@@ -255,7 +255,7 @@ namespace PoliticsQuizApp.WPF
 
                 if (qVM.IsMultipleChoice)
                 {
-                    // 1. Dùng CHECKBOX (Hình vuông)
+                    // 1. Dùng CHECKBOX 
                     CheckBox cb = new CheckBox();
                     cb.Content = new TextBlock { Text = ans.Content, TextWrapping = TextWrapping.Wrap, FontSize = 16 };
                     cb.Margin = new Thickness(0, 5, 0, 10);
@@ -280,9 +280,8 @@ namespace PoliticsQuizApp.WPF
 
                     // Sự kiện Click
                     rb.Checked += (s, e) => {
-                        // Radio chỉ chọn 1 -> Xóa hết cái cũ, thêm cái mới
-                        qVM.UserSelectedAnswerIds.Clear();
-                        qVM.UserSelectedAnswerIds.Add((long)((RadioButton)s).Tag);
+                        long selectedId = (long)((RadioButton)s).Tag;
+                        qVM.UserSelectedAnswerIds = new List<long> { selectedId };
                         UpdateProgress();
                     };
 
