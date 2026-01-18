@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Admin Dashboard - Hệ thống Quản lý Thi Trắc Nghiệm" Height="750" Width="1100"
         WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         FontFamily="Segoe UI" Background="#F3F4F6">
 
     <Window.Resources>
@@ -27,6 +28,10 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+        <Style x:Key="CenterText" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </Window.Resources>
 
@@ -132,7 +137,10 @@
                 <DataGrid x:Name="dgQuestions" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True" 
                           CanUserAddRows="False" Background="White" BorderBrush="#E5E7EB" BorderThickness="1" RowHeight="35">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ID" Binding="{Binding QuestionData.QuestionID}" Width="50"/>
+                        <DataGridTextColumn Header="STT" 
+                        Binding="{Binding STT}" 
+                        Width="50" 
+                        ElementStyle="{StaticResource CenterText}"/>
                         <DataGridTextColumn Header="Nội dung" Binding="{Binding QuestionData.Content}" Width="*"/>
                         <DataGridTextColumn Header="Chương" Binding="{Binding QuestionData.Topic.TopicName}" Width="150"/>
 

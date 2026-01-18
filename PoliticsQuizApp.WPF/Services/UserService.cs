@@ -15,6 +15,7 @@ namespace PoliticsQuizApp.WPF.Services
         public string Username { get; set; }
         public string FullName { get; set; }
         public string RoleName { get; set; } // Cột này để hiện chữ
+        public string Role { get; internal set; }
     }
 
     public class UserService

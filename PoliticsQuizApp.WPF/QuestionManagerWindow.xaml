@@ -145,7 +145,7 @@
                                             EditingElementStyle="{StaticResource {x:Type CheckBox}}"
                                             Width="40"/>
 
-                    <DataGridTextColumn Header="ID" Binding="{Binding QuestionData.QuestionID}" Width="50" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="STT" Binding="{Binding STT}" Width="50" IsReadOnly="True" />
                     <DataGridTextColumn Header="Nội dung câu hỏi" Binding="{Binding QuestionData.Content}" Width="*" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Mức độ" Binding="{Binding QuestionData.Difficulty}" Width="70" IsReadOnly="True"/>
                 </DataGrid.Columns>

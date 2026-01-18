@@ -2,25 +2,35 @@
 using PoliticsQuizApp.WPF.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
+using System.Collections.ObjectModel;
 
 namespace PoliticsQuizApp.WPF
 {
     public partial class MainWindow : Window
     {
         private QuestionService _service;
+        private ObservableCollection<QuestionViewModel> _questions;
 
         public MainWindow()
         {
             InitializeComponent();
             _service = new QuestionService();
+            _questions = new ObservableCollection<QuestionViewModel>();
+            dgQuestions.ItemsSource = _questions;
             LoadQuestions();
         }
 
         private void LoadQuestions()
         {
-            // Tải danh sách câu hỏi cho bảng tra cứu bên dưới
+            
             var list = _service.GetAllQuestions();
-            dgQuestions.ItemsSource = list;
+            int index = 1;
+            foreach (var item in list)
+            {
+                item.STT = index++;
+            }
+            _questions.Clear();
+            foreach (var item in list) _questions.Add(item);
         }
 
         // =========================================================

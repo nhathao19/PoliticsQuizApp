@@ -9,6 +9,7 @@ namespace PoliticsQuizApp.WPF.ViewModels
     public class QuestionViewModel : INotifyPropertyChanged
     {
         public Question QuestionData { get; set; }
+        public int STT { get; set; }
         public int Index { get; set; }
         public List<Answer> Answers { get; set; }
         public bool IsMultipleChoice => Answers != null && Answers.Count(a => a.IsCorrect) > 1;

@@ -18,8 +18,29 @@ namespace PoliticsQuizApp.WPF
 
         private void LoadData()
         {
-            // Tải lại danh sách User lên bảng
-            dgUsers.ItemsSource = _userService.GetAllUsers();
+            // 1. Lấy danh sách gốc từ Service
+            var rawUsers = _userService.GetAllUsers();
+
+            // 2. Chuyển đổi sang danh sách hiển thị có STT
+            var displayList = new System.Collections.Generic.List<UserDisplayVM>();
+            int index = 1;
+
+            foreach (var u in rawUsers)
+            {
+                // Giả sử u có các thuộc tính UserId, Username, FullName, RoleName
+                // Chúng ta map sang class hiển thị mới
+                displayList.Add(new UserDisplayVM
+                {
+                    STT = index++,
+                    UserId = u.UserId,      // Giữ lại để dùng cho nút Xóa/Sửa
+                    Username = u.Username,
+                    FullName = u.FullName,
+                    RoleName = u.RoleName
+                });
+            }
+
+            // 3. Gán vào DataGrid
+            dgUsers.ItemsSource = displayList;
         }
 
         private void BtnAddUser_Click(object sender, RoutedEventArgs e)
@@ -170,6 +191,14 @@ namespace PoliticsQuizApp.WPF
             txtPassword.Clear();
             txtFullName.Clear();
             cboRole.SelectedIndex = 0;
+        }
+        public class UserDisplayVM
+        {
+            public int STT { get; set; }
+            public int UserId { get; set; } 
+            public string Username { get; set; }
+            public string FullName { get; set; }
+            public string RoleName { get; set; }
         }
     }
 }

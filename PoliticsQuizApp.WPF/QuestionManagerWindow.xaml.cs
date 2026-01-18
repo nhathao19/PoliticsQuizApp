@@ -38,7 +38,12 @@ namespace PoliticsQuizApp.WPF
             if (_selectedTopicId == -1) return;
             var list = _service.GetQuestionsByTopic(_selectedTopicId);
             _currentQuestions.Clear();
-            foreach (var item in list) _currentQuestions.Add(item);
+            int index = 1;
+            foreach (var item in list) 
+            {
+                item.STT = index++;
+                _currentQuestions.Add(item);
+            } 
             lblCount.Text = $"Tổng số câu: {_currentQuestions.Count}";
         }
 

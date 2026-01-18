@@ -184,7 +184,7 @@
 
             <DataGrid x:Name="dgResults" Margin="5" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" GridLinesVisibility="Horizontal">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="MSSV" Binding="{Binding StudentId}" Width="100" Foreground="#6B7280"/>
+                    <DataGridTextColumn Header="Mã thí sinh" Binding="{Binding StudentId}" Width="100" Foreground="#6B7280"/>
 
                     <DataGridTextColumn Header="Họ và Tên" Binding="{Binding StudentName}" Width="200">
                         <DataGridTextColumn.ElementStyle>
