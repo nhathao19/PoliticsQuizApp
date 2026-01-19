@@ -1,8 +1,6 @@
-﻿using BCrypt.Net; // Thư viện mã hóa
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PoliticsQuizApp.Data;
 using PoliticsQuizApp.Data.Models; // Models vừa sinh ra
-using System.Linq;
 
 namespace PoliticsQuizApp.WPF.Services
 {

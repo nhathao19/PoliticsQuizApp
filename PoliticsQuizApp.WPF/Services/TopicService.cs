@@ -1,7 +1,5 @@
 ﻿using PoliticsQuizApp.Data;
 using PoliticsQuizApp.Data.Models;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace PoliticsQuizApp.WPF.Services
 {

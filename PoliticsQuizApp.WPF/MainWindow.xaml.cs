@@ -1,8 +1,8 @@
 ﻿using PoliticsQuizApp.WPF.Services;
 using PoliticsQuizApp.WPF.ViewModels;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Collections.ObjectModel;
 
 namespace PoliticsQuizApp.WPF
 {
@@ -22,7 +22,7 @@ namespace PoliticsQuizApp.WPF
 
         private void LoadQuestions()
         {
-            
+
             var list = _service.GetAllQuestions();
             int index = 1;
             foreach (var item in list)

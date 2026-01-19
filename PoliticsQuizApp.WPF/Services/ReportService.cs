@@ -1,12 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml; 
-using OfficeOpenXml.Style; 
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using PoliticsQuizApp.Data;
 using PoliticsQuizApp.WPF.ViewModels;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace PoliticsQuizApp.WPF.Services
 {

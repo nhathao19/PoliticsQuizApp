@@ -1,10 +1,7 @@
 ﻿using PoliticsQuizApp.Data;
 using PoliticsQuizApp.Data.Models;
-using System;
-using System.Collections.Generic; // Cần thiết để dùng List
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 
 namespace PoliticsQuizApp.WPF

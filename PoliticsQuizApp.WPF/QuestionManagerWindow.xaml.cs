@@ -1,7 +1,6 @@
 ﻿using PoliticsQuizApp.WPF.Services;
 using PoliticsQuizApp.WPF.ViewModels;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -39,11 +38,11 @@ namespace PoliticsQuizApp.WPF
             var list = _service.GetQuestionsByTopic(_selectedTopicId);
             _currentQuestions.Clear();
             int index = 1;
-            foreach (var item in list) 
+            foreach (var item in list)
             {
                 item.STT = index++;
                 _currentQuestions.Add(item);
-            } 
+            }
             lblCount.Text = $"Tổng số câu: {_currentQuestions.Count}";
         }
 

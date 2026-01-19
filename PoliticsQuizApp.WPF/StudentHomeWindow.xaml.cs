@@ -77,7 +77,7 @@ namespace PoliticsQuizApp.WPF
 
             loginForm.Show();
 
-            this.Close(); 
+            this.Close();
         }
     }
 }

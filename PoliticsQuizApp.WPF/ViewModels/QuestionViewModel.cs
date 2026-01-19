@@ -1,8 +1,6 @@
 ﻿using PoliticsQuizApp.Data.Models;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Linq;
 
 namespace PoliticsQuizApp.WPF.ViewModels
 {
@@ -27,7 +25,7 @@ namespace PoliticsQuizApp.WPF.ViewModels
             get => _isSelected;
             set { _isSelected = value; OnPropertyChanged(); }
         }
-     
+
         /**
         private long? _userSelectedAnswerId; --Biến lưu 1 đáp án
         public long? UserSelectedAnswerId

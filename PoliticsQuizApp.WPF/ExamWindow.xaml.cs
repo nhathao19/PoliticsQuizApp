@@ -1,10 +1,7 @@
 ﻿using PoliticsQuizApp.Data.Models;
 using PoliticsQuizApp.WPF.Services;
 using PoliticsQuizApp.WPF.ViewModels;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -279,7 +276,8 @@ namespace PoliticsQuizApp.WPF
                     rb.Tag = ans.AnswerId;
 
                     // Sự kiện Click
-                    rb.Checked += (s, e) => {
+                    rb.Checked += (s, e) =>
+                    {
                         long selectedId = (long)((RadioButton)s).Tag;
                         qVM.UserSelectedAnswerIds = new List<long> { selectedId };
                         UpdateProgress();
@@ -370,7 +368,7 @@ namespace PoliticsQuizApp.WPF
             // 1. TÍNH ĐIỂM (LOGIC MỚI CHO MULTIPLE CHOICE)
             double score = 0;
             int correctCount = 0;
-            
+
             // Tránh chia cho 0 nếu đề không có câu nào
             if (_questions.Count > 0)
             {
@@ -385,7 +383,7 @@ namespace PoliticsQuizApp.WPF
 
                     // Lấy danh sách ID sinh viên ĐÃ CHỌN
                     // (Đây là chỗ gây lỗi cũ nếu dùng q.UserSelectedAnswerId)
-                    var userIds = q.UserSelectedAnswerIds; 
+                    var userIds = q.UserSelectedAnswerIds;
 
                     // SO SÁNH:
                     // Sinh viên phải chọn ĐỦ số lượng và ĐÚNG các ID
@@ -412,14 +410,14 @@ namespace PoliticsQuizApp.WPF
                     try { System.IO.File.Delete(_tempFilePath); } catch { }
                 }
 
-                MessageBox.Show($"Nộp bài thành công!\n\nSố câu đúng: {correctCount}/{_questions.Count}\nĐiểm số: {score}", 
+                MessageBox.Show($"Nộp bài thành công!\n\nSố câu đúng: {correctCount}/{_questions.Count}\nĐiểm số: {score}",
                                 "Kết quả", MessageBoxButton.OK, MessageBoxImage.Information);
-                
+
                 this.Close(); // Đóng cửa sổ thi
             }
             else
             {
-                MessageBox.Show("Lỗi kết nối CSDL! Kết quả chưa được lưu.\nVui lòng báo giám thị ngay lập tức.", 
+                MessageBox.Show("Lỗi kết nối CSDL! Kết quả chưa được lưu.\nVui lòng báo giám thị ngay lập tức.",
                                 "Lỗi Nghiêm Trọng", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

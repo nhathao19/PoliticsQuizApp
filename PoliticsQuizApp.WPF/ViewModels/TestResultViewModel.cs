@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PoliticsQuizApp.WPF.ViewModels
+﻿namespace PoliticsQuizApp.WPF.ViewModels
 {
     public class TestResultViewModel
     {

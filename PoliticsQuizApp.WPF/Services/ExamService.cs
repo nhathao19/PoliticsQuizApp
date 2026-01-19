@@ -2,9 +2,6 @@
 using PoliticsQuizApp.Data;
 using PoliticsQuizApp.Data.Models;
 using PoliticsQuizApp.WPF.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace PoliticsQuizApp.WPF.Services
 {
@@ -169,7 +166,7 @@ namespace PoliticsQuizApp.WPF.Services
                         .OrderBy(x => Guid.NewGuid())
                         .Take(eCount)
                         .Include(q => q.Answers)
-                        .Include(q => q.Topic) 
+                        .Include(q => q.Topic)
                         .ToList();
                     finalQuestions.AddRange(qs);
                 }
@@ -292,6 +289,6 @@ namespace PoliticsQuizApp.WPF.Services
 
             return query.ToList();
         }
-       
+
     }
 }

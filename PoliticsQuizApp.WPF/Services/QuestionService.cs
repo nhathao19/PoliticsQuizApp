@@ -2,9 +2,6 @@
 using PoliticsQuizApp.Data;
 using PoliticsQuizApp.Data.Models;
 using PoliticsQuizApp.WPF.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace PoliticsQuizApp.WPF.Services
 {
@@ -207,7 +204,7 @@ namespace PoliticsQuizApp.WPF.Services
                 var newTopic = new Topic
                 {
                     TopicName = cleanName,
-                    SubjectId = defaultSubject.SubjectId 
+                    SubjectId = defaultSubject.SubjectId
                 };
 
                 context.Topics.Add(newTopic);

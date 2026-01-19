@@ -1,11 +1,9 @@
 ﻿using Microsoft.Win32;
 using PoliticsQuizApp.WPF.Services;
 using PoliticsQuizApp.WPF.ViewModels;
-using System;
-using System.Linq;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Collections.ObjectModel;
 
 namespace PoliticsQuizApp.WPF
 {

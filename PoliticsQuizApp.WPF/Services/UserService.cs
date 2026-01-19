@@ -1,10 +1,7 @@
 ﻿using OfficeOpenXml;
 using PoliticsQuizApp.Data;
 using PoliticsQuizApp.Data.Models;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace PoliticsQuizApp.WPF.Services
 {
